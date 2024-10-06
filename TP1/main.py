@@ -5,48 +5,48 @@ import matplotlib.pyplot as plt
 
 #Funções---------------------------------------------------------
 #função para calcular o número de ocorrências--
-def calcularNumeroOcorrencias(arrayInformacao):
+def calcularNumeroOcorrencias(arrayInformacao, arrayBaseOcorrencias):
     indice = 0
     while(indice <= 6):
         match (indice):
             case (0):
-                arrayOcorrenciasAcceleration = np.zeros_like(arrayBase)
+                arrayOcorrenciasAcceleration = np.zeros_like(arrayBaseOcorrencias)
                 for i in range(len(arrayInformacao)):
-                    arrayOcorrenciasAcceleration[arrayInformacao[i][indice]] += 1
-                indice += 1
+                    arrayOcorrenciasAcceleration[arrayInformacao[i][indice]] += 1 #vai ao número no índice [i][indice] no array das ocorrencias 
+                indice += 1                                                       #e adiciona 1 para controlar o número de vezes que esse número apareceu
                 
             case (1):
-                arrayOcorrenciasCylinders = np.zeros_like(arrayBase)
+                arrayOcorrenciasCylinders = np.zeros_like(arrayBaseOcorrencias)
                 for i in range(len(arrayInformacao)):
                     arrayOcorrenciasCylinders[arrayInformacao[i][indice]] += 1
                 indice += 1
                 
             case (2):
-                arrayOcorrenciasDisplacement = np.zeros_like(arrayBase)
+                arrayOcorrenciasDisplacement = np.zeros_like(arrayBaseOcorrencias)
                 for i in range(len(arrayInformacao)):
                     arrayOcorrenciasDisplacement[arrayInformacao[i][indice]] += 1
                 indice += 1
                 
             case (3):
-                arrayOcorrenciasHorsepower = np.zeros_like(arrayBase)
+                arrayOcorrenciasHorsepower = np.zeros_like(arrayBaseOcorrencias)
                 for i in range(len(arrayInformacao)):
                     arrayOcorrenciasHorsepower[arrayInformacao[i][indice]] += 1
                 indice += 1
                 
             case (4):
-                arrayOcorrenciasModelYear = np.zeros_like(arrayBase)
+                arrayOcorrenciasModelYear = np.zeros_like(arrayBaseOcorrencias)
                 for i in range(len(arrayInformacao)):
                     arrayOcorrenciasModelYear[arrayInformacao[i][indice]] += 1
                 indice += 1
                 
             case (5):
-                arrayOcorrenciasWeight = np.zeros_like(arrayBase)
+                arrayOcorrenciasWeight = np.zeros_like(arrayBaseOcorrencias)
                 for i in range(len(arrayInformacao)):
                     arrayOcorrenciasWeight[arrayInformacao[i][indice]] += 1
                 indice += 1
                 
             case (6):
-                arrayOcorrenciasMPG = np.zeros_like(arrayBase)
+                arrayOcorrenciasMPG = np.zeros_like(arrayBaseOcorrencias)
                 for i in range(len(arrayInformacao)):
                     arrayOcorrenciasMPG[arrayInformacao[i][indice]] += 1
                 indice += 1
@@ -56,67 +56,61 @@ def calcularNumeroOcorrencias(arrayInformacao):
 
 
 #funcao para construir o gráfico dependendo da lista que recebe--
-def criaGrafico(listaRecebida, variavel):
-    listaQuantidadeOcorrencias = listaRecebida.tolist()
+def criaGrafico(arrayOcorrenciasRecebido, arrayValoresRecebido, variavel):
+    listaQuantidadeOcorrencias = arrayOcorrenciasRecebido.tolist() #passa o array da quantidade de ocorrencias para uma lista
+    listaValoresOcorrencias = arrayValoresRecebido.tolist() #passa o array dos valores para uma lista
+    
+    indicesOcorrencias = [None] * len(arrayValoresRecebido) #cria uma lista do tamanho da quantidade dos valores diferentes de zero
 
-    nIndicesNecessarios = 0
+    indicesUsados = 0 #variável de controlo para as novas listas
     for i in range(len(listaQuantidadeOcorrencias)):
         if(listaQuantidadeOcorrencias[i] != 0):
-            nIndicesNecessarios += 1
-
-    listaOcorrencias = [None] * nIndicesNecessarios
-    indicesOcorrencias = [None] * nIndicesNecessarios
-
-    indicesUsados = 0
-    for i in range(len(listaQuantidadeOcorrencias)):
-        if(listaQuantidadeOcorrencias[i] != 0):
-            listaOcorrencias[indicesUsados] = listaQuantidadeOcorrencias[i]
-            indicesOcorrencias[indicesUsados] = i
+            indicesOcorrencias[indicesUsados] = listaQuantidadeOcorrencias[i] #passa a quantidade de ocorrências do número
             indicesUsados += 1
     
-    x = range(len(indicesOcorrencias)) #serve para criar uma lista de números seguidos para não haver barras sem ocorrências,
-    plt.figure(figsize=(12,6))         #de forma a eliminar espaços em brancos derivado a valores sem ocorrências
-    plt.bar(x, listaOcorrencias, color='red')
+    x = range(len(listaValoresOcorrencias)) #serve para criar uma lista de números seguidos para não haver barras sem ocorrências,
+    plt.figure(figsize=(12,6))              #de forma a eliminar espaços em brancos derivado a valores sem ocorrências
+    plt.bar(x, indicesOcorrencias, color='red')
     plt.xlim(x[0] - 0.5, x[len(x) - 1] + 0.5)
     plt.xlabel(variavel)
     plt.ylabel("Count")
-    plt.xticks(x, indicesOcorrencias, rotation=90) #meter as barras nas unidades e mudar as labels
+    plt.xticks(x, listaValoresOcorrencias, rotation=90) #meter as barras nas unidades e mudar as labels
     plt.tight_layout()
     plt.show()
 
 
 #função para mostrar os gráficos consoante o indice--
 #mudar para uma forma mais eficiente, todo o bloco comum meter noutra funcao
-def apresentaGrafico(arrayOcorrenciasAcceleration, arrayOcorrenciasCylinders, arrayOcorrenciasDisplacement, arrayOcorrenciasHorsepower, arrayOcorrenciasModelYear, arrayOcorrenciasWeight, arrayOcorrenciasMPG):
+def apresentaGrafico(dicionarioOcorrencias, dicionarioAlfabeto):
     indice = 0
     while(indice <= 6):
         match (indice):
             case (0):
-                criaGrafico(arrayOcorrenciasAcceleration, "Acceleration")
+                criaGrafico(dicionarioOcorrencias['Acceleration'], dicionarioAlfabeto['Acceleration'], "Acceleration")
                 indice += 1
                 
             case (1):
-                criaGrafico(arrayOcorrenciasCylinders, "Cylinders")
+                criaGrafico(dicionarioOcorrencias['Cylinders'], dicionarioAlfabeto['Cylinders'], "Cylinders")
                 indice += 1
                 
             case (2):
-                criaGrafico(arrayOcorrenciasDisplacement, "Displacement")
+                criaGrafico(dicionarioOcorrencias['Displacement'], dicionarioAlfabeto['Displacement'], "Displacement")
                 indice += 1
                 
             case (3):
-                criaGrafico(arrayOcorrenciasHorsepower, "Horsepower")
+                criaGrafico(dicionarioOcorrencias['Horsepower'], dicionarioAlfabeto['Horsepower'], "Horsepower")
                 indice += 1
                 
             case (4):
-                criaGrafico(arrayOcorrenciasModelYear, "Model Year")
+                criaGrafico(dicionarioOcorrencias['ModelYear'], dicionarioAlfabeto['ModelYear'], "Model Year")
                 indice += 1
                 
             case (5):
-                criaGrafico(arrayOcorrenciasWeight, "Weight")
+                criaGrafico(dicionarioOcorrencias['Weight'], dicionarioAlfabeto['Weight'], "Weight")
                 indice += 1
                 
             case (6):
-                criaGrafico(arrayOcorrenciasMPG, "MPG")
+                criaGrafico(dicionarioOcorrencias['MPG'], dicionarioAlfabeto['MPG'], "MPG")
                 indice += 1
 
 
@@ -199,11 +193,22 @@ arrayInformacao = arrayInformacao.astype(np.uint16)
 
 #definir respetivo alfabeto
 nb = (arrayInformacao.itemsize * 8)
-arrayBase = np.arange(0, 2**nb)
+arrayBaseOcorrencias = np.arange(0, 2**nb)
+
+#Encontrar os números que têm ocorrências
+alfabeto = {} 
+alfabeto['Acceleration'] = np.unique(arrayInformacao[:, 0])
+alfabeto['Cylinders'] = np.unique(arrayInformacao[:, 1])
+alfabeto['Displacement'] = np.unique(arrayInformacao[:, 2])
+alfabeto['Horsepower'] = np.unique(arrayInformacao[:, 3])
+alfabeto['ModelYear'] = np.unique(arrayInformacao[:, 4])
+alfabeto['Weight'] = np.unique(arrayInformacao[:, 5])
+alfabeto['MPG'] = np.unique(arrayInformacao[:, 6])
 
 #Tópico 4 --------------------------------------------------------
 #calcular o número de ocorrências
-arrayOcorrenciasAcceleration, arrayOcorrenciasCylinders, arrayOcorrenciasDisplacement, arrayOcorrenciasHorsepower, arrayOcorrenciasModelYear, arrayOcorrenciasWeight, arrayOcorrenciasMPG = calcularNumeroOcorrencias(arrayInformacao)
+dicionarioOcorrencias = {}
+dicionarioOcorrencias['Acceleration'], dicionarioOcorrencias['Cylinders'], dicionarioOcorrencias['Displacement'], dicionarioOcorrencias['Horsepower'], dicionarioOcorrencias['ModelYear'], dicionarioOcorrencias['Weight'], dicionarioOcorrencias['MPG'] = calcularNumeroOcorrencias(arrayInformacao, arrayBaseOcorrencias)
 
 #Tópico 5 --------------------------------------------------------
-apresentaGrafico(arrayOcorrenciasAcceleration, arrayOcorrenciasCylinders, arrayOcorrenciasDisplacement, arrayOcorrenciasHorsepower, arrayOcorrenciasModelYear, arrayOcorrenciasWeight, arrayOcorrenciasMPG)
+apresentaGrafico(dicionarioOcorrencias, alfabeto)
