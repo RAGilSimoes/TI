@@ -5,55 +5,58 @@ import matplotlib.pyplot as plt
 
 #Funções---------------------------------------------------------
 #função para calcular o número de ocorrências--
-def calcularNumeroOcorrencias(arrayInformacao, arrayBaseOcorrencias):
+def calcularNumeroOcorrencias(arrayInformacao, arrayBaseOcorrencias, dicionarioOcorrencias, alfabetoValores):
     indice = 0
     while(indice <= 6):
         match (indice):
             case (0):
-                arrayOcorrenciasAcceleration = np.zeros_like(arrayBaseOcorrencias)
+                dicionarioOcorrencias['Acceleration'] = np.zeros_like(arrayBaseOcorrencias)
                 for i in range(len(arrayInformacao)):
-                    arrayOcorrenciasAcceleration[arrayInformacao[i][indice]] += 1 #vai ao número no índice [i][indice] no array das ocorrencias 
-                indice += 1                                                       #e adiciona 1 para controlar o número de vezes que esse número apareceu
+                    dicionarioOcorrencias['Acceleration'][arrayInformacao[i][indice]] += 1 #vai ao número no índice [i][indice] no array das ocorrencias 
+                alfabetoValores['Acceleration'] = np.unique(arrayInformacao[:, indice])    #e adiciona 1 para controlar o número de vezes que esse número apareceu
+                indice += 1                                                                
                 
             case (1):
-                arrayOcorrenciasCylinders = np.zeros_like(arrayBaseOcorrencias)
+                dicionarioOcorrencias['Cylinders'] = np.zeros_like(arrayBaseOcorrencias)
                 for i in range(len(arrayInformacao)):
-                    arrayOcorrenciasCylinders[arrayInformacao[i][indice]] += 1
+                    dicionarioOcorrencias['Cylinders'][arrayInformacao[i][indice]] += 1
+                alfabetoValores['Cylinders'] = np.unique(arrayInformacao[:, indice])
                 indice += 1
                 
             case (2):
-                arrayOcorrenciasDisplacement = np.zeros_like(arrayBaseOcorrencias)
+                dicionarioOcorrencias['Displacement'] = np.zeros_like(arrayBaseOcorrencias)
                 for i in range(len(arrayInformacao)):
-                    arrayOcorrenciasDisplacement[arrayInformacao[i][indice]] += 1
+                    dicionarioOcorrencias['Displacement'][arrayInformacao[i][indice]] += 1
+                alfabetoValores['Displacement'] = np.unique(arrayInformacao[:, indice])
                 indice += 1
                 
             case (3):
-                arrayOcorrenciasHorsepower = np.zeros_like(arrayBaseOcorrencias)
+                dicionarioOcorrencias['Horsepower'] = np.zeros_like(arrayBaseOcorrencias)
                 for i in range(len(arrayInformacao)):
-                    arrayOcorrenciasHorsepower[arrayInformacao[i][indice]] += 1
+                    dicionarioOcorrencias['Horsepower'][arrayInformacao[i][indice]] += 1
+                alfabetoValores['Horsepower'] = np.unique(arrayInformacao[:, indice])
                 indice += 1
                 
             case (4):
-                arrayOcorrenciasModelYear = np.zeros_like(arrayBaseOcorrencias)
+                dicionarioOcorrencias['ModelYear'] = np.zeros_like(arrayBaseOcorrencias)
                 for i in range(len(arrayInformacao)):
-                    arrayOcorrenciasModelYear[arrayInformacao[i][indice]] += 1
+                    dicionarioOcorrencias['ModelYear'][arrayInformacao[i][indice]] += 1
+                alfabetoValores['ModelYear'] = np.unique(arrayInformacao[:, indice])
                 indice += 1
                 
             case (5):
-                arrayOcorrenciasWeight = np.zeros_like(arrayBaseOcorrencias)
+                dicionarioOcorrencias['Weight'] = np.zeros_like(arrayBaseOcorrencias)
                 for i in range(len(arrayInformacao)):
-                    arrayOcorrenciasWeight[arrayInformacao[i][indice]] += 1
+                    dicionarioOcorrencias['Weight'][arrayInformacao[i][indice]] += 1
+                alfabetoValores['Weight'] = np.unique(arrayInformacao[:, indice])
                 indice += 1
                 
             case (6):
-                arrayOcorrenciasMPG = np.zeros_like(arrayBaseOcorrencias)
+                dicionarioOcorrencias['MPG'] = np.zeros_like(arrayBaseOcorrencias)
                 for i in range(len(arrayInformacao)):
-                    arrayOcorrenciasMPG[arrayInformacao[i][indice]] += 1
+                    dicionarioOcorrencias['MPG'][arrayInformacao[i][indice]] += 1
+                alfabetoValores['MPG'] = np.unique(arrayInformacao[:, indice])
                 indice += 1
-    return arrayOcorrenciasAcceleration, arrayOcorrenciasCylinders, arrayOcorrenciasDisplacement, arrayOcorrenciasHorsepower, arrayOcorrenciasModelYear, arrayOcorrenciasWeight, arrayOcorrenciasMPG
-
-
-
 
 #funcao para construir o gráfico dependendo da lista que recebe--
 def criaGrafico(arrayOcorrenciasRecebido, arrayValoresRecebido, variavel):
@@ -196,19 +199,12 @@ nb = (arrayInformacao.itemsize * 8)
 arrayBaseOcorrencias = np.arange(0, 2**nb)
 
 #Encontrar os números que têm ocorrências
-alfabeto = {} 
-alfabeto['Acceleration'] = np.unique(arrayInformacao[:, 0])
-alfabeto['Cylinders'] = np.unique(arrayInformacao[:, 1])
-alfabeto['Displacement'] = np.unique(arrayInformacao[:, 2])
-alfabeto['Horsepower'] = np.unique(arrayInformacao[:, 3])
-alfabeto['ModelYear'] = np.unique(arrayInformacao[:, 4])
-alfabeto['Weight'] = np.unique(arrayInformacao[:, 5])
-alfabeto['MPG'] = np.unique(arrayInformacao[:, 6])
+alfabetoValores = {} 
 
 #Tópico 4 --------------------------------------------------------
 #calcular o número de ocorrências
 dicionarioOcorrencias = {}
-dicionarioOcorrencias['Acceleration'], dicionarioOcorrencias['Cylinders'], dicionarioOcorrencias['Displacement'], dicionarioOcorrencias['Horsepower'], dicionarioOcorrencias['ModelYear'], dicionarioOcorrencias['Weight'], dicionarioOcorrencias['MPG'] = calcularNumeroOcorrencias(arrayInformacao, arrayBaseOcorrencias)
+calcularNumeroOcorrencias(arrayInformacao, arrayBaseOcorrencias, dicionarioOcorrencias, alfabetoValores)
 
 #Tópico 5 --------------------------------------------------------
-apresentaGrafico(dicionarioOcorrencias, alfabeto)
+apresentaGrafico(dicionarioOcorrencias, alfabetoValores)
