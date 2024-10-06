@@ -12,8 +12,8 @@ def calcularNumeroOcorrencias(arrayInformacao, arrayBaseOcorrencias, dicionarioO
             case (0):
                 dicionarioOcorrencias['Acceleration'] = np.zeros_like(arrayBaseOcorrencias)
                 for i in range(len(arrayInformacao)):
-                    dicionarioOcorrencias['Acceleration'][arrayInformacao[i][indice]] += 1 #vai ao número no índice [i][indice] no array das ocorrencias 
-                alfabetoValores['Acceleration'] = np.unique(arrayInformacao[:, indice])    #e adiciona 1 para controlar o número de vezes que esse número apareceu
+                    dicionarioOcorrencias['Acceleration'][arrayInformacao[i][indice]] += 1 #vai ao número no índice [i][indice] no valor da chave da variável e adiciona 1 para controlar o número de vezes que esse número apareceu
+                alfabetoValores['Acceleration'] = np.unique(arrayInformacao[:, indice])    #vai ao dicionario na chave especifica e iguala ao valor o array de numeros unicos que aparecem nas informacoes recebidas
                 indice += 1                                                                
                 
             case (1):
@@ -83,7 +83,6 @@ def criaGrafico(arrayOcorrenciasRecebido, arrayValoresRecebido, variavel):
 
 
 #função para mostrar os gráficos consoante o indice--
-#mudar para uma forma mais eficiente, todo o bloco comum meter noutra funcao
 def apresentaGrafico(dicionarioOcorrencias, dicionarioAlfabeto):
     indice = 0
     while(indice <= 6):
@@ -198,11 +197,11 @@ arrayInformacao = arrayInformacao.astype(np.uint16)
 nb = (arrayInformacao.itemsize * 8)
 arrayBaseOcorrencias = np.arange(0, 2**nb)
 
-#Encontrar os números que têm ocorrências
-alfabetoValores = {} 
+ 
 
 #Tópico 4 --------------------------------------------------------
-#calcular o número de ocorrências
+alfabetoValores = {} 
+#calcular o número de ocorrências e os valores em que existem ocorrencias
 dicionarioOcorrencias = {}
 calcularNumeroOcorrencias(arrayInformacao, arrayBaseOcorrencias, dicionarioOcorrencias, alfabetoValores)
 
