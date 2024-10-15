@@ -60,6 +60,20 @@ def juntaGraficosVariavelVsMPG(varNames, arrayInformacao):
 #-----------------------------------------------------------------
 
 
+def function(): #5 valores
+    #ir ao array informacao, dividir em blocos de 5, procurar com o np.argmax o maior (numero de ocorrencias) devolve o indice (numero correspondente a essas ocorrencias)
+    #ir ao array da informacao original e substituir os numeros pelos respetivos do intervalo com maior ocorrencias
+    array = np.array([1,4,3,5,7,2,7,2,2,2,8,7,0])
+    intervalo = np.arange(0, 13)
+    ocorrencias = np.zeros_like(intervalo)
+    for i in array:
+        if(i in intervalo):
+            ocorrencias[i] += 1
+    maiorOcorrencia = np.argmax(ocorrencias)
+    resultado = np.where(, maiorOcorrencia, array) #falta fazer uma condição para verificar que está no intervalo
+    print("banana")
+
+
 def main():
     #Tópico 1 --------------------------------------------------------
     #carregar conjunto de dados--
@@ -94,15 +108,20 @@ def main():
     calcularNumeroOcorrencias(arrayInformacao, arrayBaseOcorrencias, dicionarioOcorrencias, alfabetoValores, varNames)
     
     #Tópico 5 --------------------------------------------------------
-    apresentaGraficosVariaveis(dicionarioOcorrencias, alfabetoValores, varNames)
+    #apresentaGraficosVariaveis(dicionarioOcorrencias, alfabetoValores, varNames)
 
 
+    #Tópico 6 --------------------------------------------------------
+    
+        
+        
+    function()   
 
 
 #topico 6
 #fazer intervalos e o número para o qual se vai alterar é o número com a maior moda (mais frequente) dos números do intervalo
 #binning de 40 simbolos são de 0 até 39 e etc
-#np.argmax indice onde ocorre o maximo
+#np.argmax indice onde ocorre o maximo 
 #np.where serve para alterar o valor dos numeros consoante uma condição
 
 #-- temos o intervalo de valores que queremos, encontramos o valor dentro desse intervalo com maior numero de ocorrencias
