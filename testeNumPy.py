@@ -11,3 +11,6 @@ C = np.array(["ola", "adeus", "ate amanha"], dtype=object)
 print(C)
 D=np.append(C, "tudo bem")
 print(D)
+
+D = np.array([1,5,8,2,7,2,9,1,1])
+print(np.argmax(D))

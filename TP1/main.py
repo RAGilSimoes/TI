@@ -105,7 +105,20 @@ def main():
 #np.argmax indice onde ocorre o maximo
 #np.where serve para alterar o valor dos numeros consoante uma condição
 
+#-- temos o intervalo de valores que queremos, encontramos o valor dentro desse intervalo com maior numero de ocorrencias
+#-- e à medida que percorremos o array informacao da variavel, vamos alterando os valores que estao dentro do intervalo
+#-- para o valor com maior numero
 
+
+#topico 7
+#calcular a entropia ponto a
+#ponto b - entropia conjunta da matriz de todas as variáveis - entropia dos simbolos mas de todas as variaveis - considerar apos variadas transformadas
+
+
+#topico 8
+#variância ponderada - np.var() calcula a variância simples
+#np.average(x) - média simples de x -- np.average(x, weigth=p) media ponderada
+#var(x) = E((x-media)^2)
 
 
 if __name__ == "__main__":
