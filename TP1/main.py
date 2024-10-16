@@ -27,6 +27,7 @@ def criaGraficoVariavel(arrayOcorrenciasRecebido, arrayValoresRecebido, variavel
     plt.figure(figsize=(12,6))
     plt.bar(arrayValoresString, novoArrayOcorrencias, color='red')
     plt.xlabel(variavel)
+    plt.xticks(rotation=90)
     plt.ylabel("Count")
     plt.tight_layout()
     plt.show()
@@ -60,29 +61,33 @@ def juntaGraficosVariavelVsMPG(varNames, arrayInformacao):
 #-----------------------------------------------------------------
 
 
-def efetuarBinning(arrayInformacao, arrayBaseOcorrencias, dicionarioOcorrencias, alfabetoValores, varNames, tamanhoIntervalo): #5 valores ou 40 valores (argumentos: quantidade de valores do intervalo, array informacao especifico, dicionarios e variaveis)
-    #ir ao array informacao, dividir em blocos de 5, procurar com o np.argmax o maior (numero de ocorrencias) devolve o indice (numero correspondente a essas ocorrencias)
-    #ir ao array da informacao original e substituir os numeros pelos respetivos do intervalo com maior ocorrencias
-    lista = list(dicionarioOcorrencias.keys())
-    for i in varNames:
-        indice = lista.index(i) #encontrar o indice correspondente ao nome
-        quantidadeBlocos = (len(arrayInformacao[:, indice]) // tamanhoIntervalo)
-        array = arrayInformacao[:, indice]
-        for l in range(quantidadeBlocos - 1):
-            intervalo = np.arange(l * tamanhoIntervalo, (l+1) * tamanhoIntervalo) #modificar para estar sempre a adicionar
-            ocorrencias = np.zeros(tamanhoIntervalo)
-            for m in array:
-                if(m in intervalo):
-                    ocorrencias[intervalo[0] - m] += 1 #se o numero estiver no intervalo, subtrair o numero ao primeiro do intervalo para obter o indice
-            maiorOcorrencia = (np.argmax(ocorrencias) + intervalo[0]) #obtem o indice de maior ocorrencias e adiciona o primeiro do intervalo para obter o numero correto
-            resultado = np.where(((array <= intervalo[len(intervalo) - 1]) & (array >= intervalo[0])), maiorOcorrencia, array) 
-        print("banana")
-    #dividir o array de informacao recebido em blocos de x numeros e contar quantos desses blocos existem
-    #fazer um loop ate ao numero desses blocos e no final fazer um só para os restantes que nao formam um bloco inteiro
-    #alterar o intervalo ao adicionar a cada indice do intervalo o x numeros do intervalo, ou criar um novo array intervalo que va
-    #desde um numero ao outro e ir criando sempre com i + x numeros4
+#-----------------------------------------------------------------
+def efetuarBinning(arrayInformacao, indiceVariavel, tamanhoIntervalo): #5 valores ou 40 valores (argumentos: quantidade de valores do intervalo, array informacao especifico, dicionarios e variaveis) #encontrar o indice correspondente ao nome
+    array = arrayInformacao[:, indiceVariavel]
+    maiorNumero = array[np.argmax(array)]
+    quantidadeBlocos = (maiorNumero // tamanhoIntervalo) #meter um if para verificar se precisa de um bloco extra
+    for l in range(quantidadeBlocos + 1):
+        intervalo = np.arange(l * tamanhoIntervalo, (l+1) * tamanhoIntervalo) #modificar para estar sempre a adicionar
+        ocorrencias = np.zeros(tamanhoIntervalo, dtype=int)
+        for m in array:
+            if(m in intervalo):
+                ocorrencias[m - intervalo[0]] += 1 #se o numero estiver no intervalo, subtrair o numero ao primeiro do intervalo para obter o indice
+        maiorOcorrencia = (np.argmax(ocorrencias) + intervalo[0]) #obtem o indice de maior ocorrencias e adiciona o primeiro do intervalo para obter o numero correto
+        array = np.where(((array <= intervalo[len(intervalo) - 1]) & (array >= intervalo[0])), maiorOcorrencia, array) #verifica se os numeros estão no intervalo, se sim muda, se não mantem
+    arrayInformacao[:, indiceVariavel] = array #altera a coluna no array das informacoes para o novo array
 
 
+def binningPrincipal(arrayInformacao, dicionarioOcorrencias, varNames, variaveisEscolhidas):
+    for i in variaveisEscolhidas: #faz o codigo por cada variavel
+        indice = varNames.index(i) #procura o indice da variavel na lista dos nomes
+        if((i == 'Displacement') | (i == 'Horsepower')): 
+            tamanhoIntervalo = 5
+        else: 
+            tamanhoIntervalo = 40
+        efetuarBinning(arrayInformacao, indice, tamanhoIntervalo)
+#-----------------------------------------------------------------
+
+#-----------------------------------------------------------------
 def main():
     #Tópico 1 --------------------------------------------------------
     #carregar conjunto de dados--
@@ -117,26 +122,14 @@ def main():
     calcularNumeroOcorrencias(arrayInformacao, arrayBaseOcorrencias, dicionarioOcorrencias, alfabetoValores, varNames)
     
     #Tópico 5 --------------------------------------------------------
-    #apresentaGraficosVariaveis(dicionarioOcorrencias, alfabetoValores, varNames)
+    apresentaGraficosVariaveis(dicionarioOcorrencias, alfabetoValores, varNames)
 
 
     #Tópico 6 --------------------------------------------------------
-    
-        
-    
-    efetuarBinning(arrayInformacao, arrayBaseOcorrencias, dicionarioOcorrencias, alfabetoValores, ['Displacement', 'Horsepower', 'Weigth'],5)   
-
-
-#topico 6
-#fazer intervalos e o número para o qual se vai alterar é o número com a maior moda (mais frequente) dos números do intervalo
-#binning de 40 simbolos são de 0 até 39 e etc
-#np.argmax indice onde ocorre o maximo 
-#np.where serve para alterar o valor dos numeros consoante uma condição
-
-#-- temos o intervalo de valores que queremos, encontramos o valor dentro desse intervalo com maior numero de ocorrencias
-#-- e à medida que percorremos o array informacao da variavel, vamos alterando os valores que estao dentro do intervalo
-#-- para o valor com maior numero
-
+    binningPrincipal(arrayInformacao, dicionarioOcorrencias, varNames, ['Displacement', 'Horsepower', 'Weight'])
+    calcularNumeroOcorrencias(arrayInformacao, arrayBaseOcorrencias, dicionarioOcorrencias, alfabetoValores, varNames)  
+    apresentaGraficosVariaveis(dicionarioOcorrencias, alfabetoValores, varNames)
+    #-----------------------------------------------------------------
 
 #topico 7
 #calcular a entropia ponto a
