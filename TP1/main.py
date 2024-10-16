@@ -60,18 +60,27 @@ def juntaGraficosVariavelVsMPG(varNames, arrayInformacao):
 #-----------------------------------------------------------------
 
 
-def function(): #5 valores
+def efetuarBinning(arrayInformacao, arrayBaseOcorrencias, dicionarioOcorrencias, alfabetoValores, varNames, tamanhoIntervalo): #5 valores ou 40 valores (argumentos: quantidade de valores do intervalo, array informacao especifico, dicionarios e variaveis)
     #ir ao array informacao, dividir em blocos de 5, procurar com o np.argmax o maior (numero de ocorrencias) devolve o indice (numero correspondente a essas ocorrencias)
     #ir ao array da informacao original e substituir os numeros pelos respetivos do intervalo com maior ocorrencias
-    array = np.array([1,4,3,5,7,2,7,2,2,2,8,7,0])
-    intervalo = np.arange(0, 13)
-    ocorrencias = np.zeros_like(intervalo)
-    for i in array:
-        if(i in intervalo):
-            ocorrencias[i] += 1
-    maiorOcorrencia = np.argmax(ocorrencias)
-    resultado = np.where(, maiorOcorrencia, array) #falta fazer uma condição para verificar que está no intervalo
-    print("banana")
+    lista = list(dicionarioOcorrencias.keys())
+    for i in varNames:
+        indice = lista.index(i) #encontrar o indice correspondente ao nome
+        quantidadeBlocos = (len(arrayInformacao[:, indice]) // tamanhoIntervalo)
+        array = arrayInformacao[:, indice]
+        for l in range(quantidadeBlocos - 1):
+            intervalo = np.arange(l * tamanhoIntervalo, (l+1) * tamanhoIntervalo) #modificar para estar sempre a adicionar
+            ocorrencias = np.zeros(tamanhoIntervalo)
+            for m in array:
+                if(m in intervalo):
+                    ocorrencias[intervalo[0] - m] += 1 #se o numero estiver no intervalo, subtrair o numero ao primeiro do intervalo para obter o indice
+            maiorOcorrencia = (np.argmax(ocorrencias) + intervalo[0]) #obtem o indice de maior ocorrencias e adiciona o primeiro do intervalo para obter o numero correto
+            resultado = np.where(((array <= intervalo[len(intervalo) - 1]) & (array >= intervalo[0])), maiorOcorrencia, array) 
+        print("banana")
+    #dividir o array de informacao recebido em blocos de x numeros e contar quantos desses blocos existem
+    #fazer um loop ate ao numero desses blocos e no final fazer um só para os restantes que nao formam um bloco inteiro
+    #alterar o intervalo ao adicionar a cada indice do intervalo o x numeros do intervalo, ou criar um novo array intervalo que va
+    #desde um numero ao outro e ir criando sempre com i + x numeros4
 
 
 def main():
@@ -114,8 +123,8 @@ def main():
     #Tópico 6 --------------------------------------------------------
     
         
-        
-    function()   
+    
+    efetuarBinning(arrayInformacao, arrayBaseOcorrencias, dicionarioOcorrencias, alfabetoValores, ['Displacement', 'Horsepower', 'Weigth'],5)   
 
 
 #topico 6
