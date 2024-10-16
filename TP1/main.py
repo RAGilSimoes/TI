@@ -126,7 +126,7 @@ def main():
     calcularNumeroOcorrencias(arrayInformacao, arrayBaseOcorrencias, dicionarioOcorrencias, alfabetoValores, varNames)
     
     #Tópico 5 --------------------------------------------------------
-    #apresentaGraficosVariaveis(dicionarioOcorrencias, alfabetoValores, varNames)
+    apresentaGraficosVariaveis(dicionarioOcorrencias, alfabetoValores, varNames)
 
 
     #Tópico 6 --------------------------------------------------------
