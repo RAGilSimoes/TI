@@ -65,7 +65,11 @@ def juntaGraficosVariavelVsMPG(varNames, arrayInformacao):
 def efetuarBinning(arrayInformacao, indiceVariavel, tamanhoIntervalo): #5 valores ou 40 valores (argumentos: quantidade de valores do intervalo, array informacao especifico, dicionarios e variaveis) #encontrar o indice correspondente ao nome
     array = arrayInformacao[:, indiceVariavel]
     maiorNumero = array[np.argmax(array)]
-    quantidadeBlocos = (maiorNumero // tamanhoIntervalo) #meter um if para verificar se precisa de um bloco extra
+    quantidadeBlocos = (maiorNumero // tamanhoIntervalo)
+    
+    #if(maiorNumero % tamanhoIntervalo != 0): #se houver mais numeros para alem do ultimo numero do ultimo bloco, criar mais 1 para os restantes numeros
+    #    quantidadeBlocos += 1 #PRECISAMOS DISTO????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
+        
     for l in range(quantidadeBlocos + 1):
         intervalo = np.arange(l * tamanhoIntervalo, (l+1) * tamanhoIntervalo) #modificar para estar sempre a adicionar
         ocorrencias = np.zeros(tamanhoIntervalo, dtype=int)
@@ -77,10 +81,10 @@ def efetuarBinning(arrayInformacao, indiceVariavel, tamanhoIntervalo): #5 valore
     arrayInformacao[:, indiceVariavel] = array #altera a coluna no array das informacoes para o novo array
 
 
-def binningPrincipal(arrayInformacao, dicionarioOcorrencias, varNames, variaveisEscolhidas):
+def binningPrincipal(arrayInformacao, varNames, variaveisEscolhidas):
     for i in variaveisEscolhidas: #faz o codigo por cada variavel
         indice = varNames.index(i) #procura o indice da variavel na lista dos nomes
-        if((i == 'Displacement') | (i == 'Horsepower')): 
+        if((i == 'Displacement') or (i == 'Horsepower')): 
             tamanhoIntervalo = 5
         else: 
             tamanhoIntervalo = 40
@@ -122,11 +126,11 @@ def main():
     calcularNumeroOcorrencias(arrayInformacao, arrayBaseOcorrencias, dicionarioOcorrencias, alfabetoValores, varNames)
     
     #Tópico 5 --------------------------------------------------------
-    apresentaGraficosVariaveis(dicionarioOcorrencias, alfabetoValores, varNames)
+    #apresentaGraficosVariaveis(dicionarioOcorrencias, alfabetoValores, varNames)
 
 
     #Tópico 6 --------------------------------------------------------
-    binningPrincipal(arrayInformacao, dicionarioOcorrencias, varNames, ['Displacement', 'Horsepower', 'Weight'])
+    binningPrincipal(arrayInformacao, varNames, ['Displacement', 'Horsepower', 'Weight'])
     calcularNumeroOcorrencias(arrayInformacao, arrayBaseOcorrencias, dicionarioOcorrencias, alfabetoValores, varNames)  
     apresentaGraficosVariaveis(dicionarioOcorrencias, alfabetoValores, varNames)
     #-----------------------------------------------------------------
