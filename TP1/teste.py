@@ -5,7 +5,6 @@ import huffmancodec as huffc
 
 
 #8/10 - 1,75 em 3 (0,25 não está tudo em funções  0,75 calcular o numero de ocorrencias)
-#22/10 - 7 em 7
 
 #Funções---------------------------------------------------------
 #Tópico 2 --------------------------------------------------------
@@ -64,33 +63,31 @@ def apresentaGraficosVariaveis(dicionarioOcorrencias, alfabetoValores, varNames)
 
 
 #Tópico 6 --------------------------------------------------------
-def efetuarBinning(arrayInformacao, indiceVariavel, tamanhoIntervalo): 
+def efetuarBinning(arrayInformacao, indiceVariavel, tamanhoIntervalo, arrayOcorrencias): 
     array = arrayInformacao[:, indiceVariavel]
     maiorNumero = array[np.argmax(array)]
     quantidadeBlocos = (maiorNumero // tamanhoIntervalo)
     
     #if(maiorNumero % tamanhoIntervalo != 0): #se houver mais numeros para alem do ultimo numero do ultimo bloco, criar mais 1 para os restantes numeros
-    #    quantidadeBlocos += 1 precisamos deste ultimo bloco
+    #    quantidadeBlocos += 1 #PRECISAMOS DISTO????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
         
     for l in range(quantidadeBlocos + 1):
-        intervalo = np.arange(l * tamanhoIntervalo, (l+1) * tamanhoIntervalo) #modificar para estar sempre a adicionar
-        ocorrencias = np.zeros(tamanhoIntervalo, dtype=int)
-        for m in array: #percorrer o array ocorrencias de tamanhoIntervalo em tamanhoIntervalo e 
-            if(m in intervalo):
-                ocorrencias[m - intervalo[0]] += 1 #se o numero estiver no intervalo, subtrair o numero ao primeiro do intervalo para obter o indice
+        intervalo = np.array((l * tamanhoIntervalo, (l+1) * tamanhoIntervalo)) #modificar para estar sempre a adicionar
+        ocorrencias = np.array((arrayOcorrencias[intervalo[0]], arrayOcorrencias[intervalo[len(intervalo) - 1]])) #como passar o array??? melhorar
         maiorOcorrencia = (np.argmax(ocorrencias) + intervalo[0]) #obtem o indice de maior ocorrencias e adiciona o primeiro do intervalo para obter o numero correto
         array = np.where(((array <= intervalo[len(intervalo) - 1]) & (array >= intervalo[0])), maiorOcorrencia, array) #verifica se os numeros estão no intervalo, se sim muda, se não mantem
     arrayInformacao[:, indiceVariavel] = array #altera a coluna no array das informacoes para o novo array
 
 
-def binningPrincipal(arrayInformacao, varNames, variaveisEscolhidas):
+def binningPrincipal(arrayInformacao, varNames, variaveisEscolhidas, dicionarioOcorrencias):
     for i in variaveisEscolhidas: #faz o codigo por cada variavel
         indice = varNames.index(i) #procura o indice da variavel na lista dos nomes
         if((i == 'Displacement') or (i == 'Horsepower')): 
             tamanhoIntervalo = 5
+            array = dicionarioOcorrencias[i]
         else: 
             tamanhoIntervalo = 40
-        efetuarBinning(arrayInformacao, indice, tamanhoIntervalo)
+        efetuarBinning(arrayInformacao, indice, tamanhoIntervalo, array)
 #-----------------------------------------------------------------
 
 
@@ -108,12 +105,29 @@ def entropia(varNames, arrayInformacao):
     for i, variavel in enumerate(varNames):
         dicionarioEntropias[variavel] = valorMedioBits(arrayInformacao[:, i])
         print(f"{variavel}: {dicionarioEntropias[variavel]}")
-    entropiaTotal = valorMedioBits(arrayInformacao.flatten()) #Entropia total      #ver se não é preciso o flatten
-    print(f"Total: {entropiaTotal}\n")
+    entropia_total = valorMedioBits(arrayInformacao.flatten()) #Entropia total      #flatten tranforma multiplos arrays em 1 unico
+    print(f"Total: {entropia_total}\n")
 #-----------------------------------------------------------------
 
 
 #Tópico 8 --------------------------------------------------------
+# def obterInformacoesHuffman(source):
+#     codec = huffc.HuffmanCodec.from_data(source)
+#     symbols, lengths = codec.get_code_len() #symbols - o mesmo que o unique / length - tamanho de bits para representar cada simbolo
+#     return lengths
+
+# def valorMedioBitsHuffman(arrayInformacao):
+#     lengths = obterInformacoesHuffman(arrayInformacao)
+#     valoresUnicos, contagem = np.unique(arrayInformacao, return_counts=True) #conta a frequencia de cada simbolo (numero) na coluna do excel
+#     valorMedioBits = np.average(lengths, weights=(contagem/len(arrayInformacao))) #calcula o tamanho medio de bits por simbolo
+#     return valorMedioBits, lengths, contagem
+
+# def varianciaPonderada(arrayInformacao):
+#     valorMedioBits, lengths, contagem = valorMedioBitsHuffman(arrayInformacao)
+#     variancia = ((lengths - valorMedioBits) ** 2)
+#     varianciaPonderada = np.average(variancia, weights=(contagem/len(arrayInformacao)))
+#     return varianciaPonderada
+
 def entropiaHuffmanEVarianciaPonderadaHuffmanCadaVariavel(arrayInformacaoPassado):
     codec = huffc.HuffmanCodec.from_data(arrayInformacaoPassado)
     symbols, lengths = codec.get_code_len() #symbols - o mesmo que o unique / length - tamanho de bits para representar cada simbolo
@@ -191,12 +205,12 @@ def main():
     
     
     #Tópico 5 --------------------------------------------------------
-    apresentaGraficosVariaveis(dicionarioOcorrencias, alfabetoValores, varNames)
+    #apresentaGraficosVariaveis(dicionarioOcorrencias, alfabetoValores, varNames)
     #-----------------------------------------------------------------
 
 
     #Tópico 6 --------------------------------------------------------
-    binningPrincipal(arrayInformacao, varNames, ['Displacement', 'Horsepower', 'Weight'])
+    binningPrincipal(arrayInformacao, varNames, ['Displacement', 'Horsepower', 'Weight'], dicionarioOcorrencias)
     calcularNumeroOcorrencias(arrayInformacao, arrayBaseOcorrencias, dicionarioOcorrencias, alfabetoValores, varNames)  
     apresentaGraficosVariaveis(dicionarioOcorrencias, alfabetoValores, varNames)
     #-----------------------------------------------------------------
@@ -224,22 +238,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
-#topico 9
-#ver enunciado
-
-#topico 10
-#informação mútua -> I(X;Y) = somatoriox somatorioy p(x,y)*log2((p(x,y)/(p(x)-p(y))) p(y) - mpg
-#tabela com coordenadas e ver no ponto(primeiro numero, segundo numero)
-#exemplo ACC=[37,40,24,68]
-#exemplo mpg = [27,10,65,34]
-#pontos (37,27), (40,10), (24,65), (68,34) 
-#inicializar a 0 a matriz e incrementar nos pontos
-#p*y = p*y * np.sum(p*y)
-#ou I(x;y) = entropia (x) + entropia(y) - entropia(x,y)
-#o que sao os coeficientes de correlação?
-
-#topico 11
-#min absolute error mae = somatorio ate tamanho do vetor |y - y^| y^ - valor previsto
-#rmse = raiz quadrada de 1/tamanho do vetor * somatorio|y-y^|
-#MI = informacao mutua
