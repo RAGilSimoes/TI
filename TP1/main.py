@@ -7,7 +7,15 @@ import huffmancodec as huffc
 #8/10 - 1,75 em 3 (0,25 não está tudo em funções  0,75 calcular o numero de ocorrencias)
 #22/10 - 7 em 7
 
+
+#Atenção:
+#após modificação do binning (em vez de fazer loop pelo array todo sempre que há um intervalo novo), o resultado das totais ficou diferente
+#Coeficiente de correlação alguns valores estão infimamente diferentes (para que serve o [0,1]?)
+#Como comentar os resultados?
+
+
 #Funções---------------------------------------------------------
+
 #Tópico 2 --------------------------------------------------------
 #função para construir um gráfico de MPG em relação a uma variável      
 def construirGraficoVariavelVsMPG(variavel,local, arrayInformacao):
@@ -27,6 +35,7 @@ def juntaGraficosVariavelVsMPG(varNames, arrayInformacao):
         construirGraficoVariavelVsMPG(varNames[i],i+1, arrayInformacao) 
     plt.show()
 #-----------------------------------------------------------------
+
 
 #Tópico 4 e 6--------------------------------------------------------
 #função para calcular o número de ocorrências de cada variável e para criar um array dos números com ocorrências                                 
@@ -61,10 +70,8 @@ def apresentaGraficosVariaveis(dicionarioOcorrencias, alfabetoValores, varNames)
 #-----------------------------------------------------------------
 
 
-
-
 #Tópico 6 --------------------------------------------------------
-def efetuarBinning(arrayInformacao, indiceVariavel, tamanhoIntervalo): 
+def efetuarBinning(arrayInformacao, indiceVariavel, tamanhoIntervalo, arrayOcorrencias): 
     array = arrayInformacao[:, indiceVariavel]
     maiorNumero = array[np.argmax(array)]
     quantidadeBlocos = (maiorNumero // tamanhoIntervalo)
@@ -74,23 +81,20 @@ def efetuarBinning(arrayInformacao, indiceVariavel, tamanhoIntervalo):
         
     for l in range(quantidadeBlocos + 1):
         intervalo = np.arange(l * tamanhoIntervalo, (l+1) * tamanhoIntervalo) #modificar para estar sempre a adicionar
-        ocorrencias = np.zeros(tamanhoIntervalo, dtype=int)
-        for m in array: #percorrer o array ocorrencias de tamanhoIntervalo em tamanhoIntervalo e 
-            if(m in intervalo):
-                ocorrencias[m - intervalo[0]] += 1 #se o numero estiver no intervalo, subtrair o numero ao primeiro do intervalo para obter o indice
+        ocorrencias = np.array(arrayOcorrencias[intervalo[0]:intervalo[len(intervalo) - 1]])
         maiorOcorrencia = (np.argmax(ocorrencias) + intervalo[0]) #obtem o indice de maior ocorrencias e adiciona o primeiro do intervalo para obter o numero correto
         array = np.where(((array <= intervalo[len(intervalo) - 1]) & (array >= intervalo[0])), maiorOcorrencia, array) #verifica se os numeros estão no intervalo, se sim muda, se não mantem
     arrayInformacao[:, indiceVariavel] = array #altera a coluna no array das informacoes para o novo array
 
 
-def binningPrincipal(arrayInformacao, varNames, variaveisEscolhidas):
+def binningPrincipal(arrayInformacao, varNames, variaveisEscolhidas, dicionarioOcorrencias):
     for i in variaveisEscolhidas: #faz o codigo por cada variavel
         indice = varNames.index(i) #procura o indice da variavel na lista dos nomes
         if((i == 'Displacement') or (i == 'Horsepower')): 
             tamanhoIntervalo = 5
         else: 
             tamanhoIntervalo = 40
-        efetuarBinning(arrayInformacao, indice, tamanhoIntervalo)
+        efetuarBinning(arrayInformacao, indice, tamanhoIntervalo, dicionarioOcorrencias[i])
 #-----------------------------------------------------------------
 
 
@@ -150,6 +154,16 @@ def apresentarEntropiaHuffmanEVarianciaPonderada(varNames, arrayInformacao):
 #-----------------------------------------------------------------
 
 
+#Tópico 9 --------------------------------------------------------
+def correlacaoPearson(arrayInformacao, varNames):
+    indice = varNames.index('MPG')
+    correlacoes = {}
+    for i, variavel in enumerate(varNames):
+        if i != indice:  
+            correlacoes[variavel] = np.corrcoef(arrayInformacao[:, indice], arrayInformacao[:, i])[0,1]
+            print(f"Correlação entre MPG e {variavel}: {correlacoes[variavel]}")
+#-----------------------------------------------------------------
+
 
 #-----------------------------------------------------------------
 def main():
@@ -196,7 +210,7 @@ def main():
 
 
     #Tópico 6 --------------------------------------------------------
-    binningPrincipal(arrayInformacao, varNames, ['Displacement', 'Horsepower', 'Weight'])
+    binningPrincipal(arrayInformacao, varNames, ['Displacement', 'Horsepower', 'Weight'], dicionarioOcorrencias)
     calcularNumeroOcorrencias(arrayInformacao, arrayBaseOcorrencias, dicionarioOcorrencias, alfabetoValores, varNames)  
     apresentaGraficosVariaveis(dicionarioOcorrencias, alfabetoValores, varNames)
     #-----------------------------------------------------------------
@@ -220,13 +234,15 @@ def main():
 
     #Tópico 8 --------------------------------------------------------
     apresentarEntropiaHuffmanEVarianciaPonderada(varNames, arrayInformacao)
+    
+    
+    #Tópico 9 --------------------------------------------------------
+    correlacaoPearson(arrayInformacao, varNames)
 
 
 if __name__ == "__main__":
     main()
     
-#topico 9
-#ver enunciado
 
 #topico 10
 #informação mútua -> I(X;Y) = somatoriox somatorioy p(x,y)*log2((p(x,y)/(p(x)-p(y))) p(y) - mpg
