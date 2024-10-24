@@ -69,8 +69,8 @@ def efetuarBinning(arrayInformacao, indiceVariavel, tamanhoIntervalo):
     maiorNumero = array[np.argmax(array)]
     quantidadeBlocos = (maiorNumero // tamanhoIntervalo)
     
-    #if(maiorNumero % tamanhoIntervalo != 0): #se houver mais numeros para alem do ultimo numero do ultimo bloco, criar mais 1 para os restantes numeros
-    #    quantidadeBlocos += 1 precisamos deste ultimo bloco
+    if(maiorNumero % tamanhoIntervalo != 0): #se houver mais numeros para alem do ultimo numero do ultimo bloco, criar mais 1 para os restantes numeros
+        quantidadeBlocos += 1 
         
     for l in range(quantidadeBlocos + 1):
         intervalo = np.arange(l * tamanhoIntervalo, (l+1) * tamanhoIntervalo) #modificar para estar sempre a adicionar
