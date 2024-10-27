@@ -108,7 +108,7 @@ def valorMedioBits(variavelEscolhida):
 
 def entropia(varNames, arrayInformacao):
     dicionarioEntropias = {}
-    print("Entropia:")
+    print("\nEntropia:")
     for i, variavel in enumerate(varNames):
         dicionarioEntropias[variavel] = valorMedioBits(arrayInformacao[:, i])
         print(f"{variavel}: {dicionarioEntropias[variavel]}")
@@ -150,7 +150,7 @@ def apresentarEntropiaHuffmanEVarianciaPonderada(varNames, arrayInformacao):
     print("Variância dos comprimentos:")
     for variavel in varNames:
         print(f"{variavel} (por Huffman): {dicionarioVarianciasPonderadasHuffman[variavel]}")
-    print(f"Total (por Huffman): {varianciaPonderadaTotalHuffman}\n")
+    print(f"Total (por Huffman): {varianciaPonderadaTotalHuffman}")
 #-----------------------------------------------------------------
 
 
