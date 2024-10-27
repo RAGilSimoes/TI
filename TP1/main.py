@@ -157,11 +157,32 @@ def apresentarEntropiaHuffmanEVarianciaPonderada(varNames, arrayInformacao):
 #Tópico 9 --------------------------------------------------------
 def correlacaoPearson(arrayInformacao, varNames):
     indice = varNames.index('MPG')
-    correlacoes = {}
+    dicionarioCoeficientesCorrelacao = {}
+    print("\nCoeficiente de Correlação:")
     for i, variavel in enumerate(varNames):
         if i != indice:  
-            correlacoes[variavel] = np.corrcoef(arrayInformacao[:, indice], arrayInformacao[:, i])[0,1]
-            print(f"Correlação entre MPG e {variavel}: {correlacoes[variavel]}")
+            dicionarioCoeficientesCorrelacao[variavel] = np.corrcoef(arrayInformacao[:, indice], arrayInformacao[:, i])[0,1]
+            print(f"{variavel}: {dicionarioCoeficientesCorrelacao[variavel]}")
+#-----------------------------------------------------------------
+
+
+#Tópico 10 --------------------------------------------------------
+def valorMedioBitsConjunto(variavelX, variavelY):
+    pares = np.array(list(zip(variavelX, variavelY)))    
+    valoresUnicos, contagem = np.unique(pares, axis=0, return_counts=True)
+    probabilidades = contagem / len(variavelX)
+    entropia_conjunta = -np.sum(probabilidades * np.log2(probabilidades))
+    return entropia_conjunta
+
+#inf mutua = entropia (A) + entropia (B) - entropia (A,B)
+def InformacaoMutua(arrayInformacao, varNames):
+    indice = varNames.index('MPG')
+    dicionarioInformacaoMutua = {}
+    print("\nInformaçao Mutua:")
+    for i, variavel in enumerate(varNames):
+        if i != indice:  
+            dicionarioInformacaoMutua[variavel] = (valorMedioBits(arrayInformacao[:,i]) + valorMedioBits(arrayInformacao[:,indice]) - valorMedioBitsConjunto(arrayInformacao[:, i],arrayInformacao[:,indice]))
+            print(f"{variavel}: {dicionarioInformacaoMutua[variavel]}")
 #-----------------------------------------------------------------
 
 
@@ -183,7 +204,7 @@ def main():
     
     #Tópico 2 --------------------------------------------------------
     #construir os gráficos das variávieis--
-    juntaGraficosVariavelVsMPG(varNames, arrayInformacao)
+    #juntaGraficosVariavelVsMPG(varNames, arrayInformacao)
     #-----------------------------------------------------------------
 
 
@@ -205,14 +226,14 @@ def main():
     
     
     #Tópico 5 --------------------------------------------------------
-    apresentaGraficosVariaveis(dicionarioOcorrencias, alfabetoValores, varNames)
+    #apresentaGraficosVariaveis(dicionarioOcorrencias, alfabetoValores, varNames)
     #-----------------------------------------------------------------
 
 
     #Tópico 6 --------------------------------------------------------
     binningPrincipal(arrayInformacao, varNames, ['Displacement', 'Horsepower', 'Weight'], dicionarioOcorrencias)
     calcularNumeroOcorrencias(arrayInformacao, arrayBaseOcorrencias, dicionarioOcorrencias, alfabetoValores, varNames)  
-    apresentaGraficosVariaveis(dicionarioOcorrencias, alfabetoValores, varNames)
+    #apresentaGraficosVariaveis(dicionarioOcorrencias, alfabetoValores, varNames)
     #-----------------------------------------------------------------
     
     
@@ -238,6 +259,10 @@ def main():
     
     #Tópico 9 --------------------------------------------------------
     correlacaoPearson(arrayInformacao, varNames)
+    
+    
+    #Tópico 10 --------------------------------------------------------
+    InformacaoMutua(arrayInformacao, varNames)
 
 
 if __name__ == "__main__":
