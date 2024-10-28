@@ -82,7 +82,7 @@ def efetuarBinning(arrayInformacao, indiceVariavel, tamanhoIntervalo, arrayOcorr
         
     for l in range(quantidadeBlocos + 1):
         intervalo = np.arange(l * tamanhoIntervalo, (l+1) * tamanhoIntervalo) #modificar para estar sempre a adicionar
-        ocorrencias = np.array(arrayOcorrencias[intervalo[0]:intervalo[len(intervalo) - 1]])
+        ocorrencias = np.array(arrayOcorrencias[intervalo[0]:intervalo[tamanhoIntervalo-1]+1])
         maiorOcorrencia = (np.argmax(ocorrencias) + intervalo[0]) #obtem o indice de maior ocorrencias e adiciona o primeiro do intervalo para obter o numero correto
         array = np.where(((array <= intervalo[len(intervalo) - 1]) & (array >= intervalo[0])), maiorOcorrencia, array) #verifica se os numeros estão no intervalo, se sim muda, se não mantem
     arrayInformacao[:, indiceVariavel] = array #altera a coluna no array das informacoes para o novo array
@@ -244,7 +244,7 @@ def main():
     
     #Tópico 2 --------------------------------------------------------
     #construir os gráficos das variávieis--
-    juntaGraficosVariavelVsMPG(varNames, arrayInformacao)
+    #juntaGraficosVariavelVsMPG(varNames, arrayInformacao)
     #-----------------------------------------------------------------
 
 
@@ -266,14 +266,14 @@ def main():
     
     
     #Tópico 5 --------------------------------------------------------
-    apresentaGraficosVariaveis(dicionarioOcorrencias, alfabetoValores, varNames)
+    #apresentaGraficosVariaveis(dicionarioOcorrencias, alfabetoValores, varNames)
     #-----------------------------------------------------------------
 
 
     #Tópico 6 --------------------------------------------------------
     binningPrincipal(arrayInformacao, varNames, ['Displacement', 'Horsepower', 'Weight'], dicionarioOcorrencias)
     calcularNumeroOcorrencias(arrayInformacao, arrayBaseOcorrencias, dicionarioOcorrencias, alfabetoValores, varNames)  
-    apresentaGraficosVariaveis(dicionarioOcorrencias, alfabetoValores, varNames)
+    #apresentaGraficosVariaveis(dicionarioOcorrencias, alfabetoValores, varNames)
     #-----------------------------------------------------------------
     
     
