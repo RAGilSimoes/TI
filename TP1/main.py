@@ -4,19 +4,8 @@ import matplotlib.pyplot as plt
 import huffmancodec as huffc
 
 
-#8/10 - 1,75 em 3 (0,25 não está tudo em funções  0,75 calcular o numero de ocorrencias)
-#22/10 - 7 em 7
-
-
-#Atenção:
-#após modificação do binning (em vez de fazer loop pelo array todo sempre que há um intervalo novo), o resultado das totais ficou diferente
-#Coeficiente de correlação alguns valores estão infimamente diferentes (para que serve o [0,1]?)
-#Como comentar os resultados?
-
-
 #Funções---------------------------------------------------------
-
-#Tópico 2 --------------------------------------------------------
+#--------------------------Tópico 2------------------------------
 #função para construir um gráfico de MPG em relação a uma variável      
 def construirGraficoVariavelVsMPG(variavel, local, arrayInformacao):
     plt.subplot(3,2,local)
@@ -37,7 +26,7 @@ def juntaGraficosVariavelVsMPG(varNames, arrayInformacao):
 #-----------------------------------------------------------------
 
 
-#Tópico 4 e 6--------------------------------------------------------
+#--------------------------Tópico 4 e 6---------------------------
 #função para calcular o número de ocorrências de cada variável e para criar um array dos números com ocorrências                                 
 def calcularNumeroOcorrencias(arrayInformacao, arrayBaseOcorrencias, dicionarioOcorrencias, alfabetoValores, varNames):
     for i in range(len(varNames)):
@@ -49,8 +38,8 @@ def calcularNumeroOcorrencias(arrayInformacao, arrayBaseOcorrencias, dicionarioO
 #-----------------------------------------------------------------
 
 
-#Tópico 5 e 6--------------------------------------------------------
-#funcao para construir o gráfico dependendo da lista que recebe--
+#--------------------------Tópico 4 e 6---------------------------
+#funcao para construir o gráfico dependendo da lista que recebe---
 def criaGraficoVariavel(arrayOcorrenciasRecebido, arrayValoresRecebido, variavel): 
     novoArrayOcorrencias = arrayOcorrenciasRecebido[arrayOcorrenciasRecebido > 0] #n02
     arrayValoresString = arrayValoresRecebido.astype(str)
@@ -70,7 +59,7 @@ def apresentaGraficosVariaveis(dicionarioOcorrencias, alfabetoValores, varNames)
 #-----------------------------------------------------------------
 
 
-#Tópico 6 --------------------------------------------------------
+#--------------------------Tópico 6-------------------------------
 #funcao para efetuar o binning no arrayInformacao
 def efetuarBinning(arrayInformacao, indiceVariavel, tamanhoIntervalo, arrayOcorrencias): 
     array = arrayInformacao[:, indiceVariavel]
@@ -99,7 +88,7 @@ def binningPrincipal(arrayInformacao, varNames, variaveisEscolhidas, dicionarioO
 #-----------------------------------------------------------------
 
 
-#Tópico 7 --------------------------------------------------------
+#--------------------------Tópico 7-------------------------------
 #funcao para calcular a entropia das variáveis
 def valorMedioBits(variavelEscolhida):
     valoresUnicos, contagem = np.unique(variavelEscolhida, return_counts=True) #conta a frequencia de cada simbolo (numero) na coluna do excel
@@ -118,7 +107,7 @@ def entropia(varNames, arrayInformacao):
 #-----------------------------------------------------------------
 
 
-#Tópico 8 --------------------------------------------------------
+#--------------------------Tópico 8-------------------------------
 #funcao para calcular por Huffman
 def entropiaHuffmanEVarianciaPonderadaHuffmanCadaVariavel(arrayInformacaoPassado):
     codec = huffc.HuffmanCodec.from_data(arrayInformacaoPassado)
@@ -156,7 +145,7 @@ def apresentarEntropiaHuffmanEVarianciaPonderada(varNames, arrayInformacao):
 #-----------------------------------------------------------------
 
 
-#Tópico 9 --------------------------------------------------------
+#--------------------------Tópico 9-------------------------------
 #funcao para calcular a correlacao de Pearson
 def correlacaoPearson(arrayInformacao, varNames):
     indice = varNames.index('MPG')
@@ -169,7 +158,7 @@ def correlacaoPearson(arrayInformacao, varNames):
 #-----------------------------------------------------------------
 
 
-#Tópico 10 --------------------------------------------------------
+#--------------------------Tópico 10------------------------------
 #funcao para calcular a informação mútua
 def valorMedioBitsConjunto(variavelX, variavelY):
     pares = np.array(list(zip(variavelX, variavelY)))    
@@ -191,7 +180,7 @@ def InformacaoMutua(arrayInformacao, varNames):
 #-----------------------------------------------------------------
 
 
-#Tópico 11 --------------------------------------------------------
+#--------------------------Tópico 11------------------------------
 #funcao para calcular o MPG estimado e os MAE e RMSE
 def calcularMPGEstimado(arrayInformacao):
     calcularMPG = (-5.5241 - (0.146 * arrayInformacao[:,0]) - (0.4909 * arrayInformacao[:,1]) + (0.0026 * arrayInformacao[:,2]) - (0.0045 * arrayInformacao[:,3]) + (0.6725 * arrayInformacao[:,4]) - (0.0059 * arrayInformacao[:,5]))
@@ -226,7 +215,7 @@ def encontraMaiorEMenorMI(dicionarioInformacaoMutua, varNames, arrayInformacao):
 #-----------------------------------------------------------------
 
 
-#-----------------------------------------------------------------
+#----------------------------MAIN---------------------------------
 def main():
     #Tópico 1 --------------------------------------------------------
     #carregar conjunto de dados--
