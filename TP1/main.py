@@ -41,7 +41,7 @@ def calcularNumeroOcorrencias(arrayInformacao, arrayBaseOcorrencias, dicionarioO
 #--------------------------Tópico 4 e 6---------------------------
 #funcao para construir o gráfico dependendo da lista que recebe---
 def criaGraficoVariavel(arrayOcorrenciasRecebido, arrayValoresRecebido, variavel): 
-    novoArrayOcorrencias = arrayOcorrenciasRecebido[arrayOcorrenciasRecebido > 0] #n02
+    novoArrayOcorrencias = arrayOcorrenciasRecebido[arrayOcorrenciasRecebido > 0]
     arrayValoresString = arrayValoresRecebido.astype(str)
     plt.figure(figsize=(12,6))
     plt.bar(arrayValoresString, novoArrayOcorrencias, color='red')
@@ -92,7 +92,7 @@ def binningPrincipal(arrayInformacao, varNames, variaveisEscolhidas, dicionarioO
 #funcao para calcular a entropia das variáveis
 def valorMedioBits(variavelEscolhida):
     valoresUnicos, contagem = np.unique(variavelEscolhida, return_counts=True) #conta a frequencia de cada simbolo (numero) na coluna do excel
-    probabilidades = contagem / len(variavelEscolhida) #calcula probabilidades de cada simbolo e devolve um array em que cada indice é a probabilidade de cada simbolo
+    probabilidades = contagem / len(variavelEscolhida) #calcula probabileidades de cada simbolo  devolve um array em que cada indice é a probabilidade de cada simbolo
     entropia = -np.sum(probabilidades * np.log2(probabilidades)) #fórmula de Shannon
     return entropia
 
@@ -102,7 +102,7 @@ def entropia(varNames, arrayInformacao):
     for i, variavel in enumerate(varNames):
         dicionarioEntropias[variavel] = valorMedioBits(arrayInformacao[:, i])
         print(f"{variavel}: {dicionarioEntropias[variavel]}")
-    entropiaTotal = valorMedioBits(arrayInformacao.flatten()) #Entropia total      #ver se não é preciso o flatten
+    entropiaTotal = valorMedioBits(arrayInformacao.flatten()) #Entropia total 
     print(f"Total: {entropiaTotal}\n")
 #-----------------------------------------------------------------
 
@@ -233,7 +233,7 @@ def main():
     
     #Tópico 2 --------------------------------------------------------
     #construir os gráficos das variávieis--
-    #juntaGraficosVariavelVsMPG(varNames, arrayInformacao)
+    juntaGraficosVariavelVsMPG(varNames, arrayInformacao)
     #-----------------------------------------------------------------
 
 
@@ -255,46 +255,41 @@ def main():
     
     
     #Tópico 5 --------------------------------------------------------
-    #apresentaGraficosVariaveis(dicionarioOcorrencias, alfabetoValores, varNames)
+    #apresentar gráficos para as variáveis
+    apresentaGraficosVariaveis(dicionarioOcorrencias, alfabetoValores, varNames)
     #-----------------------------------------------------------------
 
 
     #Tópico 6 --------------------------------------------------------
+    #fazer o binning, calcular as ocorrências e apresentar gráficos novamente
     binningPrincipal(arrayInformacao, varNames, ['Displacement', 'Horsepower', 'Weight'], dicionarioOcorrencias)
     calcularNumeroOcorrencias(arrayInformacao, arrayBaseOcorrencias, dicionarioOcorrencias, alfabetoValores, varNames)  
-    #apresentaGraficosVariaveis(dicionarioOcorrencias, alfabetoValores, varNames)
+    apresentaGraficosVariaveis(dicionarioOcorrencias, alfabetoValores, varNames)
     #-----------------------------------------------------------------
     
     
     #Tópico 7 --------------------------------------------------------
+    #calcular entropia das variáveis
     entropia(varNames, arrayInformacao)
-
-    #Comentar o resultado: 
-        #Acelaracao tem um valor de entropia relativamente alto ou seja ainda existem bastantes valores variados no dataset.
-        #Cylindros tem um valor bastante baixo de entropia ou seja sao valores bastantes fixos como (4,6,8) e nao estao longe uns dos outros.
-        #Displacement tem um valor de entropia elevado ou seja tem valores bem diversificados.
-        #HorsePower tem um valor de entropia elevado mostrando uma grande variedade de elementos no dataset.
-        #ModYear tem um valor retalivamente alto mesmo tendo alguns valores fixos.
-        #Weight tem um valor de entropia mais alto de todas as variaveis tendo os valores mais distantes.
-        #Mpg tem um valor de entropia alto tendo valores bastante variados no dataset.
-        
-        #OU apenas apresentar os resultados obtidos???
-    #-----------------------------------------------------------------
 
 
     #Tópico 8 --------------------------------------------------------
+    #calcular entropia e variância por huffman
     apresentarEntropiaHuffmanEVarianciaPonderada(varNames, arrayInformacao)
     
     
     #Tópico 9 --------------------------------------------------------
+    #calcular correlação de Pearson
     correlacaoPearson(arrayInformacao, varNames)
     
     
     #Tópico 10 --------------------------------------------------------
+    #calcular informação mútua
     dicionarioInformacaoMutua = InformacaoMutua(arrayInformacao, varNames)
     
     
     #Tópico 11 --------------------------------------------------------
+    #calcular MPG estimado
     calcularMPGEstimado(arrayInformacao)
     encontraMaiorEMenorMI(dicionarioInformacaoMutua, varNames, arrayInformacao)
 
