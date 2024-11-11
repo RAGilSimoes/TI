@@ -121,6 +121,25 @@ class GZIP:
         self.f.seek(0, 2)
         self.fileSize = self.f.tell()
         self.f.seek(0)
+        
+    #Tópico 1---------------------------------------
+    def lerFormatoBloco(self):
+        "Le e retorna o valor correspondente"
+        HLIT = self.readBits(5) + 257
+        HDIST = self.readBits(5) + 1
+        HCLEN = self.readBits(4) + 4
+        print(f"HLIT: {HLIT}, HDIST: {HDIST}, HCLEN: {HCLEN}")
+        return HLIT, HDIST, HCLEN
+    #--------------------------------------------
+    
+    #Tópico 2---------------------------------------
+    def criaArrayCCCC(self, HCLEN):
+        array = [0] * 19
+        ordens = [16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15]
+        for i in range(HCLEN):
+            array[ordens[i]] = self.readBits(3)
+        return array
+    #--------------------------------------------
 
     def decompress(self):
         ''' main function for decompressing the gzip file with deflate algorithm '''
@@ -156,15 +175,14 @@ class GZIP:
             #
             
             #Tópico 1--------------------------
-            HLIT = self.readBits(5) + 257
-            HDIT = self.readBits(5) + 1
-            HLEN = self.readBits(4) + 4
+            HLIT, HDIST, HCLEN = self.lerFormatoBloco()
             #---------------------------------
             
-            for i in range(HLEN):
-                print(" Numero -> " + self.readBits(4))
+            #Tópico 1--------------------------
+            arrayCCCC = self.criaArrayCCCC(HCLEN)
+            print(arrayCCCC)
+            #---------------------------------
             
-
             # update number of blocks read
             numBlocks += 1
 
