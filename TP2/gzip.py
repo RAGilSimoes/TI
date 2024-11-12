@@ -140,6 +140,39 @@ class GZIP:
             array[ordens[i]] = self.readBits(3)
         return array
     #--------------------------------------------
+    
+    #Tópico 3---------------------------------------
+    def converterCompDecimal(self, array):
+        Ac = []
+        
+        for i in range(len(array)):
+            if (array[i]!=0 and array[i] not in Ac):
+                Ac += [array[i]]
+
+        Ac.sort()
+
+        print(Ac)
+        
+        decimal=0
+        decimais=[None]*19
+
+        for i in Ac:
+            for l in range(len(array)):
+                if array[l] == i:
+                    decimais[l] = decimal
+                    decimal += 1
+            decimal = (decimal * 2)
+            
+        print(decimais)
+        return array
+
+    def DecimalToBinary(array):
+        
+        if num >= 1:
+            DecimalToBinary(num // 2)
+        print(num % 2, end = '')
+        
+    #--------------------------------------------
 
     def decompress(self):
         ''' main function for decompressing the gzip file with deflate algorithm '''
@@ -178,10 +211,24 @@ class GZIP:
             HLIT, HDIST, HCLEN = self.lerFormatoBloco()
             #---------------------------------
             
-            #Tópico 1--------------------------
+            #Tópico 2--------------------------
             arrayCCCC = self.criaArrayCCCC(HCLEN)
             print(arrayCCCC)
             #---------------------------------
+            
+            #Tópico 2--------------------------
+            self.converterCompDecimal(arrayCCCC)
+            self.DecimalToBinary(arrayCCCC)
+            #---------------------------------
+            
+            #topico 3
+            #pelos comprimentos temos os codigos
+            #alfabeto são 3,4,5 (ver no arraycccc)
+            #percorrer todos os de 3, todos os de 4, todos os de 5 e meter o correspondente em decimal (vai subindo 1 a 1) dentro do mesmo comprimento
+            #quando muda o comprimento, o correspondente decimal vai ser o (último + 1) * 2
+            #fazer for para cada no arrayccc e adicionar o decimal correspondente
+            #tamanho dos binários depende do tamanho dos códigos
+            
             
             # update number of blocks read
             numBlocks += 1
