@@ -150,7 +150,6 @@ class GZIP:
                 Ac += [array[i]]
 
         Ac.sort()
-
         print(Ac)
         
         decimal=0
@@ -164,14 +163,22 @@ class GZIP:
             decimal = (decimal * 2)
             
         print(decimais)
-        return array
-
-    def DecimalToBinary(array):
-        
-        if num >= 1:
-            DecimalToBinary(num // 2)
-        print(num % 2, end = '')
-        
+        return decimais
+    
+    def converterBinarios(self, decimais, array):
+        binarios = [None]*len(decimais)
+        for i in range(len(decimais)):
+            decimal = decimais[i]
+            if (decimal != None):
+                binario = ""
+                while decimal > 0:
+                    resto = decimal % 2
+                    binario = str(resto) + binario
+                    decimal = decimal // 2
+                if len(binario)<array[i]:
+                    binario = "0"*(array[i]-len(binario))+binario
+                binarios[i] = (binario if binario != "" else "0")
+        return binarios
     #--------------------------------------------
 
     def decompress(self):
@@ -216,9 +223,10 @@ class GZIP:
             print(arrayCCCC)
             #---------------------------------
             
-            #Tópico 2--------------------------
-            self.converterCompDecimal(arrayCCCC)
-            self.DecimalToBinary(arrayCCCC)
+            #Tópico 3--------------------------
+            decimais = self.converterCompDecimal(arrayCCCC)
+            binarios = self.converterBinarios(decimais, arrayCCCC)
+            print(binarios)
             #---------------------------------
             
             #topico 3
