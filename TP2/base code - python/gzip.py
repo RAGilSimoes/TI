@@ -150,10 +150,11 @@ class GZIP:
                 Ac += [array[i]]
 
         Ac.sort()
+
         print(Ac)
         
         decimal=0
-        decimais=[None]*19
+        decimais=[None]*len(array)
 
         for i in Ac:
             for l in range(len(array)):
@@ -177,7 +178,7 @@ class GZIP:
                     decimal = decimal // 2
                 if len(binario)<array[i]:
                     binario = "0"*(array[i]-len(binario))+binario
-                binarios[i] = (binario if binario != "" else "0")
+                binarios[i] = binario
         return binarios
     #--------------------------------------------
 
@@ -225,8 +226,9 @@ class GZIP:
             
             #Tópico 3--------------------------
             decimais = self.converterCompDecimal(arrayCCCC)
-            binarios = self.converterBinarios(decimais, arrayCCCC)
+            binarios=self.converterBinarios(decimais, arrayCCCC)
             print(binarios)
+            
             #---------------------------------
             
             #topico 3
