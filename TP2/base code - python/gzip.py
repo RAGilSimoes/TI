@@ -134,8 +134,8 @@ class GZIP:
     
     #Tópico 2---------------------------------------
     def criaArrayCCCC(self, HCLEN):
-        array = [0] * 19
-        ordens = [16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15]
+        array = np.zeros(19, dtype=object)
+        ordens = np.array([16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15])
         for i in range(HCLEN):
             array[ordens[i]] = self.readBits(3)
         return array
@@ -148,26 +148,25 @@ class GZIP:
         Ac= Ac[Ac>0]
         
         decimal=0
-        valoresDecimais = np.full((19), fill_value=None)
+        valoresDecimais = np.array([None]*len(array), dtype=object)
 
         for i in Ac:
             decimais = np.where(array == i)
             for l in range(len(decimais[0])): 
                 valoresDecimais[decimais[0][l]] = decimal
-                decimal+= 1
-            decimal = (decimal << 1)    
-        valoresDecimais = valoresDecimais.astype("int")      
+                decimal += 1
+            decimal = (decimal << 1)          
         print(valoresDecimais)
-        return valoresDecimais #falta
+        return valoresDecimais
     
     def converterBinarios(self, decimais, array):
-        binarios = [None]*len(decimais)
+        binarios = np.array([None]* len(decimais), dtype=object)
         for i in range(len(decimais)):
             decimal = decimais[i]
             if (decimal != None):
                 binario = ""
                 while decimal > 0:
-                    resto = (decimal and 1)
+                    resto = (decimal & 1)
                     binario = str(resto) + binario
                     decimal = (decimal >> 1)
                 if len(binario)<array[i]:
