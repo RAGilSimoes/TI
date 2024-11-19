@@ -1,7 +1,7 @@
 # Author: Marco Simoes
 # Adapted from Java's implementation of Rui Pedro Paiva
 # Teoria da Informacao, LEI, 2022
-
+import numpy as np
 import sys
 from huffmantree import HuffmanTree
 
@@ -143,28 +143,22 @@ class GZIP:
     
     #Tópico 3---------------------------------------
     def converterCompDecimal(self, array):
-        Ac = []
         
-        for i in range(len(array)):
-            if (array[i]!=0 and array[i] not in Ac):
-                Ac += [array[i]]
-
-        Ac.sort()
-
-        print(Ac)
+        Ac = np.unique(array)
+        Ac= Ac[Ac>0]
         
         decimal=0
-        decimais=[None]*len(array)
+        valoresDecimais = np.full((19), fill_value=None)
 
         for i in Ac:
-            for l in range(len(array)):
-                if array[l] == i:
-                    decimais[l] = decimal
-                    decimal += 1
-            decimal = (decimal * 2)
-            
-        print(decimais)
-        return decimais
+            decimais = np.where(array == i)
+            for l in range(len(decimais[0])): 
+                valoresDecimais[decimais[0][l]] = decimal
+                decimal+= 1
+            decimal = (decimal << 1)    
+        valoresDecimais = valoresDecimais.astype("int")      
+        print(valoresDecimais)
+        return valoresDecimais #falta
     
     def converterBinarios(self, decimais, array):
         binarios = [None]*len(decimais)
@@ -173,9 +167,9 @@ class GZIP:
             if (decimal != None):
                 binario = ""
                 while decimal > 0:
-                    resto = decimal % 2
+                    resto = (decimal and 1)
                     binario = str(resto) + binario
-                    decimal = decimal // 2
+                    decimal = (decimal >> 1)
                 if len(binario)<array[i]:
                     binario = "0"*(array[i]-len(binario))+binario
                 binarios[i] = binario
@@ -231,14 +225,20 @@ class GZIP:
             
             #---------------------------------
             
-            #topico 3
-            #pelos comprimentos temos os codigos
-            #alfabeto são 3,4,5 (ver no arraycccc)
-            #percorrer todos os de 3, todos os de 4, todos os de 5 e meter o correspondente em decimal (vai subindo 1 a 1) dentro do mesmo comprimento
-            #quando muda o comprimento, o correspondente decimal vai ser o (último + 1) * 2
-            #fazer for para cada no arrayccc e adicionar o decimal correspondente
-            #tamanho dos binários depende do tamanho dos códigos
+            #topico 4
+            # hft.addNode(string binária, simbolo no excel)
+            #pegar nas strings binárias e criar árvores de huffman
+            # ler da árvore, hft.nextNode(nextBit) devolve: -1 se for erro; -2 se ainda não chegou a uma folha; devolve o valor do simbolo se chegar a uma folha
+            # se devolve 17, ir ao ficheiro deflate rfc e ver o que significa o resultado
+            # adicionar no excel na coluna comprimentos, a quantidade depois temos que adicionar ao mínimo o valor de readBits com o que eles dizem no fim do numero
+            # (ver print tirada)
+            #se o valor não disser nada no rfc é só meter como comprimento esse valor devolvido
+            #código 18 repetir o 0 11 + readBits(7) vezes
+            #codigo 16 repete o último valor 3 + readBits(2) vezes
+            #após acabar de ler o valor, apontar o ponteiro para o inicio da arvore, usando o resetCurNode
             
+            #topico 5
+            #mesma coisa que o 4
             
             # update number of blocks read
             numBlocks += 1
@@ -294,7 +294,7 @@ class GZIP:
 if __name__ == '__main__':
 
     # gets filename from command line if provided
-    fileName = "FAQ.txt.gz"
+    fileName = "FAQ.txt.gz" #TP2/base code - python/FAQ.txt.gz
     if len(sys.argv) > 1:
         fileName = sys.argv[1]
 
