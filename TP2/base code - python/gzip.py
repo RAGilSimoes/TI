@@ -151,9 +151,9 @@ class GZIP:
         valoresDecimais = np.array([None]*len(array), dtype=object)
 
         for i in Ac:
-            decimais = np.where(array == i)
-            for l in range(len(decimais[0])): 
-                valoresDecimais[decimais[0][l]] = decimal
+            decimais = np.where(array == i)[0]
+            for l in range(len(decimais)): 
+                valoresDecimais[decimais[l]] = decimal
                 decimal += 1
             decimal = (decimal << 1)          
         print(valoresDecimais)
