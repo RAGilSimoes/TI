@@ -139,11 +139,16 @@ class GZIP:
         for i in range(HCLEN):
             array[ordens[i]] = self.readBits(3)
         return array
+    
+    def criaArrayHDIST(self, HDIST):
+        array = np.zeros(HDIST, dtype=object)
+        for i in range(HDIST):
+            array[i] = self.readBits(3)
+        return array
     #--------------------------------------------
     
     #Tópico 3---------------------------------------
     def converterCompDecimal(self, array):
-        
         Ac = np.unique(array)
         Ac= Ac[Ac>0]
         
@@ -156,7 +161,6 @@ class GZIP:
                 valoresDecimais[decimais[l]] = decimal
                 decimal += 1
             decimal = (decimal << 1)          
-        print(valoresDecimais)
         return valoresDecimais
     
     def converterBinarios(self, decimais, array):
@@ -174,7 +178,94 @@ class GZIP:
                 binarios[i] = binario
         return binarios
     #--------------------------------------------
+    
+    #Tópico 4---------------------------------------
+    def funcaoTopico4(self, HLIT, binarios):
+        arrhlit = [0] * (HLIT+ 257 ) #mudar para numpy
 
+        hft = HuffmanTree()
+        for i, code in enumerate(binarios):
+            if code is not None:
+                hft.addNode(code, i) 
+
+        index = 0
+
+        while index < len(arrhlit):
+            hft.resetCurNode()
+            simb = -2
+
+            while (simb == -2):
+                bit = self.readBits(1) 
+                simb = hft.nextNode(str(bit))
+                if (simb == -1):
+                    print("erro árvore de Huffman")
+                    return -1
+
+            if simb <= 15:
+                arrhlit[index] = simb
+                index += 1
+            elif simb == 16:
+                quantidade = (3+ self.readBits(2))
+                simbolo = arrhlit[index - 1]
+                arrhlit[index: index + quantidade] = [simbolo] * quantidade
+                index += quantidade
+            elif simb == 17:
+                quantidade = (3+ self.readBits(3))
+                simbolo = 0
+                arrhlit[index: index + quantidade] = [simbolo] * quantidade
+                index += quantidade
+            elif simb == 18:
+                quantidade = (11+ self.readBits(7))
+                simbolo = 0
+                arrhlit[index: index + quantidade] = [simbolo] * quantidade
+                index += quantidade
+        return arrhlit
+    #--------------------------------------------
+    
+    #Tópico 5---------------------------------------
+    def funcaoTopico5(self, HDIST, arrayHDIST):
+        arrhdist = [0] * (HDIST+ 1)
+
+        hft = HuffmanTree()
+        for i, code in enumerate(arrayHDIST):
+            if code is not None:
+                hft.addNode(code, i)
+
+        index = 0
+
+        while index < len(arrhdist):
+            hft.resetCurNode()
+            simb = -2
+
+            while (simb == -2):
+                bit = self.readBits(1) 
+                simb = hft.nextNode(str(bit))
+                if (simb == -1):
+                    print("erro árvore de Huffman")
+                    return -1
+
+            if simb <= 15:
+                arrhdist[index] = simb
+                index += 1
+            elif simb == 16:
+                quantidade = (3+ self.readBits(2))
+                simbolo = arrhdist[index - 1]
+                arrhdist[index: index + quantidade] = [simbolo] * quantidade
+                index += quantidade
+            elif simb == 17:
+                quantidade = (3+ self.readBits(3))
+                simbolo = 0
+                arrhdist[index: index + quantidade] = [simbolo] * quantidade
+                index += quantidade
+            elif simb == 18:
+                quantidade = (11+ self.readBits(7))
+                simbolo = 0
+                arrhdist[index: index + quantidade] = [simbolo] * quantidade
+                index += quantidade
+        return arrhdist
+    #--------------------------------------------
+    
+                
     def decompress(self):
         ''' main function for decompressing the gzip file with deflate algorithm '''
 
@@ -218,11 +309,27 @@ class GZIP:
             #---------------------------------
             
             #Tópico 3--------------------------
-            decimais = self.converterCompDecimal(arrayCCCC)
-            binarios=self.converterBinarios(decimais, arrayCCCC)
-            print(binarios)
+            decimaisLiterais = self.converterCompDecimal(arrayCCCC)
+            binariosLiterais=self.converterBinarios(decimaisLiterais, arrayCCCC)
+            print(binariosLiterais)
             
             #---------------------------------
+            
+            #Tópico 4--------------------------
+            arrayHLIT = self.funcaoTopico4(HLIT, binariosLiterais)
+            print("\nArray de comprimentos literais:")
+            print(arrayHLIT)
+            #---------------------------------
+            
+            #Tópico 5---------------------------
+            arrayHdist = self.criaArrayHDIST(HDIST)
+            decimaisDistancias = self.converterCompDecimal(arrayHdist)
+            binariosDistancias = self.converterBinarios(decimaisDistancias, arrayHdist)
+            
+            arrayHDIST = self.funcaoTopico5(HDIST, binariosDistancias)
+            print("\nArray de comprimentos distâncias:")
+            print(arrayHDIST)
+            #--------------------------------- 
             
             #topico 4
             # hft.addNode(string binária, simbolo no excel)
@@ -238,6 +345,21 @@ class GZIP:
             
             #topico 5
             #mesma coisa que o 4
+            
+            #topico 6
+            #mesma coisa que o 3
+            
+            #topico 7
+            # 0 a 255, literais ; 256, EOB (end of block); 257 a 285, comp lZ77
+            #codigo literal -> guardar no array de saída
+            #comp lz77 -> vamos buscar a distância à árvore de comprimentos
+            #devolve array com os números
+            
+            #topico 8
+            #gravar o que está no array para ficheiro
+            #fazer append
+            #quando chega ao EOB, pega no array e grava no ficheiro
+            #máximo 32768
             
             # update number of blocks read
             numBlocks += 1
