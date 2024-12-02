@@ -1,2 +1,1 @@
-binarios=self.converterBinarios(decimais, arrayCCCC)
-            # print(binarios)
+TP2/base code - python/FAQ.txt.gz

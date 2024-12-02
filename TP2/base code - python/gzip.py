@@ -139,12 +139,6 @@ class GZIP:
         for i in range(HCLEN):
             array[ordens[i]] = self.readBits(3)
         return array
-    
-    def criaArrayHDIST(self, HDIST):
-        array = np.zeros(HDIST, dtype=object)
-        for i in range(HDIST):
-            array[i] = self.readBits(3)
-        return array
     #--------------------------------------------
     
     #Tópico 3---------------------------------------
@@ -179,92 +173,100 @@ class GZIP:
         return binarios
     #--------------------------------------------
     
-    #Tópico 4---------------------------------------
-    def funcaoTopico4(self, HLIT, binarios):
-        arrhlit = [0] * (HLIT+ 257 ) #mudar para numpy
-
+    #Tópico 4/5---------------------------------------
+    def criaArvore(self, binarios):
         hft = HuffmanTree()
         for i, code in enumerate(binarios):
             if code is not None:
                 hft.addNode(code, i) 
+                
+        return hft
+    
+    def funcaoTopico4e5(self, hUsado, binarios, tamanhoArray, arvore):
+        array = [0] * (tamanhoArray) #mudar para numpy
 
         index = 0
 
-        while index < len(arrhlit):
-            hft.resetCurNode()
+        while index < hUsado:
+            arvore.resetCurNode()
             simb = -2
 
             while (simb == -2):
                 bit = self.readBits(1) 
-                simb = hft.nextNode(str(bit))
+                simb = arvore.nextNode(str(bit))
                 if (simb == -1):
                     print("erro árvore de Huffman")
                     return -1
 
             if simb <= 15:
-                arrhlit[index] = simb
+                array[index] = simb
                 index += 1
             elif simb == 16:
                 quantidade = (3+ self.readBits(2))
-                simbolo = arrhlit[index - 1]
-                arrhlit[index: index + quantidade] = [simbolo] * quantidade
+                simbolo = array[index - 1]
+                array[index: index + quantidade] = [simbolo] * quantidade
                 index += quantidade
             elif simb == 17:
                 quantidade = (3+ self.readBits(3))
                 simbolo = 0
-                arrhlit[index: index + quantidade] = [simbolo] * quantidade
+                array[index: index + quantidade] = [simbolo] * quantidade
                 index += quantidade
             elif simb == 18:
                 quantidade = (11+ self.readBits(7))
                 simbolo = 0
-                arrhlit[index: index + quantidade] = [simbolo] * quantidade
+                array[index: index + quantidade] = [simbolo] * quantidade
                 index += quantidade
-        return arrhlit
+        return array
     #--------------------------------------------
     
-    #Tópico 5---------------------------------------
-    def funcaoTopico5(self, HDIST, arrayHDIST):
-        arrhdist = [0] * (HDIST+ 1)
-
-        hft = HuffmanTree()
-        for i, code in enumerate(arrayHDIST):
-            if code is not None:
-                hft.addNode(code, i)
+    #Tópico 7---------------------------------------
+    def funcaoTopico7(self, hUsado, arvoreLiterais, arvoreDistancias):
+        array = np.empty(0, dtype=object)
+        arrayLiteraisComprimentos = np.array([3,4,5,6,7,8,9,10,self.readBits(1)+11, self.readBits(1)+13, self.readBits(1)+15, self.readBits(1)+17, self.readBits(2)+19, self.readBits(2)+23, self.readBits(2)+27, self.readBits(2)+31, self.readBits(3)+35, self.readBits(3)+43, self.readBits(3)+51, self.readBits(3)+59, self.readBits(4)+67, self.readBits(4)+83, self.readBits(4)+99, self.readBits(4)+115, self.readBits(5)+131, self.readBits(5)+163, self.readBits(5)+195, self.readBits(5)+227, 258]) 
+        arrayDistancias = np.array([1,2,3,4,self.readBits(1)+5, self.readBits(1)+7, self.readBits(2)+9, self.readBits(2)+13, self.readBits(3)+17, self.readBits(3)+25, self.readBits(4)+33,self.readBits(4)+49, self.readBits(5)+65, self.readBits(5)+97, self.readBits(6)+129, self.readBits(6)+193, self.readBits(7)+257, self.readBits(7)+385,self.readBits(8)+513, self.readBits(8)+769, self.readBits(9)+1025, self.readBits(9)+1537, self.readBits(10)+2049, self.readBits(10)+3073, self.readBits(11)+4097,self.readBits(11)+6145, self.readBits(12)+8193, self.readBits(12)+12289, self.readBits(13)+16385, self.readBits(13)+24577])  
 
         index = 0
 
-        while index < len(arrhdist):
-            hft.resetCurNode()
-            simb = -2
+        while index < hUsado:
+            arvoreLiterais.resetCurNode()
+            simboloLiterais = -2
 
-            while (simb == -2):
+            while (simboloLiterais == -2):
                 bit = self.readBits(1) 
-                simb = hft.nextNode(str(bit))
-                if (simb == -1):
-                    print("erro árvore de Huffman")
-                    return -1
+                simboloLiterais = arvoreLiterais.nextNode(str(bit))
+                if (simboloLiterais == -1):
+                    print("erro árvore de Huffman literais")
+                    return -1 
 
-            if simb <= 15:
-                arrhdist[index] = simb
+            if simboloLiterais <= 255:
+                array = np.append(array, simboloLiterais)
                 index += 1
-            elif simb == 16:
-                quantidade = (3+ self.readBits(2))
-                simbolo = arrhdist[index - 1]
-                arrhdist[index: index + quantidade] = [simbolo] * quantidade
-                index += quantidade
-            elif simb == 17:
-                quantidade = (3+ self.readBits(3))
-                simbolo = 0
-                arrhdist[index: index + quantidade] = [simbolo] * quantidade
-                index += quantidade
-            elif simb == 18:
-                quantidade = (11+ self.readBits(7))
-                simbolo = 0
-                arrhdist[index: index + quantidade] = [simbolo] * quantidade
-                index += quantidade
-        return arrhdist
+            elif simboloLiterais == 256:
+                break
+            else:
+                indiceArray = (simboloLiterais - 257)
+                tamanho = arrayLiteraisComprimentos[indiceArray]
+                
+                arvoreDistancias.resetCurNode()
+                simboloDistancias = -2
+                while(simboloDistancias == -2):
+                    bit = self.readBits(1)
+                    simboloDistancias = arvoreDistancias.nextNode(str(bit))
+                    if(simboloDistancias == -1):
+                        print("erro árvore de Huffman distâncias")
+                        return -1
+                    
+                distancia = arrayDistancias[simboloDistancias]
+                
+                
+                bloco = array[distancia:distancia+tamanho]
+                array = np.append(array, bloco)
+                index += 1
+                
+        
+        print(array)                
+        return array
     #--------------------------------------------
-    
                 
     def decompress(self):
         ''' main function for decompressing the gzip file with deflate algorithm '''
@@ -311,44 +313,37 @@ class GZIP:
             #Tópico 3--------------------------
             decimaisLiterais = self.converterCompDecimal(arrayCCCC)
             binariosLiterais=self.converterBinarios(decimaisLiterais, arrayCCCC)
+            print("\nBinarios de comprimentos de codigos:")
             print(binariosLiterais)
-            
             #---------------------------------
             
             #Tópico 4--------------------------
-            arrayHLIT = self.funcaoTopico4(HLIT, binariosLiterais)
+            arvoreLiterais = self.criaArvore(binariosLiterais)
+            arrayHLIT = self.funcaoTopico4e5(HLIT, binariosLiterais, 286, arvoreLiterais)
             print("\nArray de comprimentos literais:")
             print(arrayHLIT)
             #---------------------------------
             
             #Tópico 5---------------------------
-            arrayHdist = self.criaArrayHDIST(HDIST)
-            decimaisDistancias = self.converterCompDecimal(arrayHdist)
-            binariosDistancias = self.converterBinarios(decimaisDistancias, arrayHdist)
-            
-            arrayHDIST = self.funcaoTopico5(HDIST, binariosDistancias)
+            arrayHDIST = self.funcaoTopico4e5(HDIST, binariosLiterais, 30, arvoreLiterais)
             print("\nArray de comprimentos distâncias:")
             print(arrayHDIST)
             #--------------------------------- 
+
+            #Tópico 6--------------------------
+            decimaisLiteraisComprimentos = self.converterCompDecimal(arrayHLIT)
+            binariosLiteraisComprimentos=self.converterBinarios(decimaisLiteraisComprimentos, arrayHLIT)
+            print("\nBinarios de comprimentos literais:")
+            print(binariosLiteraisComprimentos)
+            #....................................
+            decimaisDistancias = self.converterCompDecimal(arrayHDIST)
+            binariosDistancias=self.converterBinarios(decimaisDistancias, arrayHDIST)
+            arvoreDistancias = self.criaArvore(binariosDistancias)
+            print("\nBinarios de distancias:")
+            print(binariosDistancias)
+            #---------------------------------
             
-            #topico 4
-            # hft.addNode(string binária, simbolo no excel)
-            #pegar nas strings binárias e criar árvores de huffman
-            # ler da árvore, hft.nextNode(nextBit) devolve: -1 se for erro; -2 se ainda não chegou a uma folha; devolve o valor do simbolo se chegar a uma folha
-            # se devolve 17, ir ao ficheiro deflate rfc e ver o que significa o resultado
-            # adicionar no excel na coluna comprimentos, a quantidade depois temos que adicionar ao mínimo o valor de readBits com o que eles dizem no fim do numero
-            # (ver print tirada)
-            #se o valor não disser nada no rfc é só meter como comprimento esse valor devolvido
-            #código 18 repetir o 0 11 + readBits(7) vezes
-            #codigo 16 repete o último valor 3 + readBits(2) vezes
-            #após acabar de ler o valor, apontar o ponteiro para o inicio da arvore, usando o resetCurNode
-            
-            #topico 5
-            #mesma coisa que o 4
-            
-            #topico 6
-            #mesma coisa que o 3
-            
+            self.funcaoTopico7(HLIT, arvoreLiterais, arvoreDistancias)
             #topico 7
             # 0 a 255, literais ; 256, EOB (end of block); 257 a 285, comp lZ77
             #codigo literal -> guardar no array de saída
