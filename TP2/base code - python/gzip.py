@@ -182,8 +182,8 @@ class GZIP:
                 
         return hft
     
-    def funcaoTopico4e5(self, hUsado, binarios, tamanhoArray, arvore):
-        array = [0] * (tamanhoArray) #mudar para numpy
+    def funcaoTopico4e5(self, hUsado,tamanhoArray, arvore):
+        array = np.empty(0, dtype=object)
 
         index = 0
 
@@ -199,22 +199,22 @@ class GZIP:
                     return -1
 
             if simb <= 15:
-                array[index] = simb
+                array = np.append(array, simb)
                 index += 1
             elif simb == 16:
                 quantidade = (3+ self.readBits(2))
                 simbolo = array[index - 1]
-                array[index: index + quantidade] = [simbolo] * quantidade
+                array = np.append(array, [simbolo] * quantidade)
                 index += quantidade
             elif simb == 17:
                 quantidade = (3+ self.readBits(3))
                 simbolo = 0
-                array[index: index + quantidade] = [simbolo] * quantidade
+                array = np.append(array, [simbolo] * quantidade)
                 index += quantidade
             elif simb == 18:
                 quantidade = (11+ self.readBits(7))
                 simbolo = 0
-                array[index: index + quantidade] = [simbolo] * quantidade
+                array = np.append(array, [simbolo] * quantidade)
                 index += quantidade
         return array
     #--------------------------------------------
@@ -319,13 +319,13 @@ class GZIP:
             
             #Tópico 4--------------------------
             arvoreLiterais = self.criaArvore(binariosLiterais)
-            arrayHLIT = self.funcaoTopico4e5(HLIT, binariosLiterais, 286, arvoreLiterais)
+            arrayHLIT = self.funcaoTopico4e5(HLIT, 286, arvoreLiterais)
             print("\nArray de comprimentos literais:")
             print(arrayHLIT)
             #---------------------------------
             
             #Tópico 5---------------------------
-            arrayHDIST = self.funcaoTopico4e5(HDIST, binariosLiterais, 30, arvoreLiterais)
+            arrayHDIST = self.funcaoTopico4e5(HDIST, 30, arvoreLiterais)
             print("\nArray de comprimentos distâncias:")
             print(arrayHDIST)
             #--------------------------------- 
