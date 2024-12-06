@@ -147,14 +147,17 @@ class GZIP:
         Ac= Ac[Ac>0]
         
         decimal=0
-        valoresDecimais = np.array([None]*len(array), dtype=object)
+        valoresDecimais = np.array([None]*np.size(array), dtype=object)
+        
+        mn = np.min(Ac)
+        mx = np.max(Ac)
 
-        for i in Ac:
+        for i in range(mn, mx+1):
             decimais = np.where(array == i)[0]
             for l in range(len(decimais)): 
                 valoresDecimais[decimais[l]] = decimal
                 decimal += 1
-            decimal = (decimal << 1)          
+            decimal = (decimal << 1)      
         return valoresDecimais
     
     def converterBinarios(self, decimais, array):
@@ -163,8 +166,8 @@ class GZIP:
             decimal = decimais[i]
             if (decimal != None):
                 binario = ""
-                while decimal > 0:
-                    resto = (decimal & 1)
+                while decimal != 0:
+                    resto = (decimal % 2)
                     binario = str(resto) + binario
                     decimal = (decimal >> 1)
                 if len(binario)<array[i]:
@@ -182,7 +185,7 @@ class GZIP:
                 
         return hft
     
-    def funcaoTopico4e5(self, hUsado,tamanhoArray, arvore):
+    def funcaoTopico4e5(self, hUsado,arvore):
         array = np.empty(0, dtype=object)
 
         index = 0
@@ -194,9 +197,10 @@ class GZIP:
             while (simb == -2):
                 bit = self.readBits(1) 
                 simb = arvore.nextNode(str(bit))
-                if (simb == -1):
-                    print("erro árvore de Huffman")
-                    return -1
+            
+            if (simb == -1):
+                print("erro árvore de Huffman")
+                return -1
 
             if simb <= 15:
                 array = np.append(array, simb)
@@ -222,21 +226,24 @@ class GZIP:
     #Tópico 7---------------------------------------
     def funcaoTopico7(self, hUsado, arvoreLiterais, arvoreDistancias):
         array = np.empty(0, dtype=object)
-        arrayLiteraisComprimentos = np.array([3,4,5,6,7,8,9,10,self.readBits(1)+11, self.readBits(1)+13, self.readBits(1)+15, self.readBits(1)+17, self.readBits(2)+19, self.readBits(2)+23, self.readBits(2)+27, self.readBits(2)+31, self.readBits(3)+35, self.readBits(3)+43, self.readBits(3)+51, self.readBits(3)+59, self.readBits(4)+67, self.readBits(4)+83, self.readBits(4)+99, self.readBits(4)+115, self.readBits(5)+131, self.readBits(5)+163, self.readBits(5)+195, self.readBits(5)+227, 258]) 
-        arrayDistancias = np.array([1,2,3,4,self.readBits(1)+5, self.readBits(1)+7, self.readBits(2)+9, self.readBits(2)+13, self.readBits(3)+17, self.readBits(3)+25, self.readBits(4)+33,self.readBits(4)+49, self.readBits(5)+65, self.readBits(5)+97, self.readBits(6)+129, self.readBits(6)+193, self.readBits(7)+257, self.readBits(7)+385,self.readBits(8)+513, self.readBits(8)+769, self.readBits(9)+1025, self.readBits(9)+1537, self.readBits(10)+2049, self.readBits(10)+3073, self.readBits(11)+4097,self.readBits(11)+6145, self.readBits(12)+8193, self.readBits(12)+12289, self.readBits(13)+16385, self.readBits(13)+24577])  
+        arrayLiteraisComprimentos = np.array([3,4,5,6,7,8,9,10,11,13,15,17,19,23,27,31,35,43,51,59,67,83,99,115,131,163,195,227,258], dtype=int)
+        arrayDistancias = np.array([1,2,3,4,5,7,9,13,17,25,33,49,65,97,129,193,257,385,513,769,1025,1537,2049,3073,4097,6145,8193,12289,16385,24577], dtype=int)
+        arrayReadBitsLiterais = np.array([0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,0], dtype=int)
+        arrayReadBitsDistancias = np.array([0,0,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13], dtype=int)
 
         index = 0
 
-        while index < hUsado:
+        while True:
             arvoreLiterais.resetCurNode()
             simboloLiterais = -2
 
             while (simboloLiterais == -2):
                 bit = self.readBits(1) 
                 simboloLiterais = arvoreLiterais.nextNode(str(bit))
-                if (simboloLiterais == -1):
-                    print("erro árvore de Huffman literais")
-                    return -1 
+            
+            if (simboloLiterais == -1):
+                print("erro árvore de Huffman literais")
+                return -1 
 
             if simboloLiterais <= 255:
                 array = np.append(array, simboloLiterais)
@@ -245,27 +252,28 @@ class GZIP:
                 break
             else:
                 indiceArray = (simboloLiterais - 257)
-                tamanho = arrayLiteraisComprimentos[indiceArray]
+                tamanho = (arrayLiteraisComprimentos[indiceArray] + self.readBits(arrayReadBitsLiterais[indiceArray]))
                 
                 arvoreDistancias.resetCurNode()
                 simboloDistancias = -2
                 while(simboloDistancias == -2):
                     bit = self.readBits(1)
                     simboloDistancias = arvoreDistancias.nextNode(str(bit))
-                    if(simboloDistancias == -1):
-                        print("erro árvore de Huffman distâncias")
-                        return -1
+                if(simboloDistancias == -1):
+                    print("erro árvore de Huffman distâncias")
+                    return -1
                     
-                distancia = arrayDistancias[simboloDistancias]
+                distancia = (arrayDistancias[simboloDistancias] + self.readBits(arrayReadBitsDistancias[simboloDistancias]))
                 
+                for i in range(tamanho):
+                    array = np.append(array, array[-distancia])
                 
-                bloco = array[distancia:distancia+tamanho]
-                array = np.append(array, bloco)
                 index += 1
                 
-        
-        print(array)                
-        return array
+        for i in array:
+            print(chr(i))
+                        
+        return array 
     #--------------------------------------------
                 
     def decompress(self):
@@ -319,13 +327,13 @@ class GZIP:
             
             #Tópico 4--------------------------
             arvoreLiterais = self.criaArvore(binariosLiterais)
-            arrayHLIT = self.funcaoTopico4e5(HLIT, 286, arvoreLiterais)
+            arrayHLIT = self.funcaoTopico4e5(HLIT, arvoreLiterais)
             print("\nArray de comprimentos literais:")
             print(arrayHLIT)
             #---------------------------------
             
             #Tópico 5---------------------------
-            arrayHDIST = self.funcaoTopico4e5(HDIST, 30, arvoreLiterais)
+            arrayHDIST = self.funcaoTopico4e5(HDIST, arvoreLiterais)
             print("\nArray de comprimentos distâncias:")
             print(arrayHDIST)
             #--------------------------------- 
@@ -333,6 +341,7 @@ class GZIP:
             #Tópico 6--------------------------
             decimaisLiteraisComprimentos = self.converterCompDecimal(arrayHLIT)
             binariosLiteraisComprimentos=self.converterBinarios(decimaisLiteraisComprimentos, arrayHLIT)
+            arvoreLiteraisComprimentos = self.criaArvore(binariosLiteraisComprimentos)
             print("\nBinarios de comprimentos literais:")
             print(binariosLiteraisComprimentos)
             #....................................
@@ -343,12 +352,14 @@ class GZIP:
             print(binariosDistancias)
             #---------------------------------
             
-            self.funcaoTopico7(HLIT, arvoreLiterais, arvoreDistancias)
-            #topico 7
-            # 0 a 255, literais ; 256, EOB (end of block); 257 a 285, comp lZ77
-            #codigo literal -> guardar no array de saída
-            #comp lz77 -> vamos buscar a distância à árvore de comprimentos
-            #devolve array com os números
+            #Tópico 7--------------------------
+            arrayCaracteresFinal = self.funcaoTopico7(HLIT, arvoreLiteraisComprimentos, arvoreDistancias)
+            #---------------------------------
+            
+            #Tópico 8--------------------------
+            #arrayCaracteresFinal = self.funcaoTopico7(HLIT, arvoreLiteraisComprimentos, arvoreDistancias)
+            #---------------------------------
+            
             
             #topico 8
             #gravar o que está no array para ficheiro
