@@ -269,11 +269,15 @@ class GZIP:
                     array = np.append(array, array[-distancia])
                 
                 index += 1
-                
-        for i in array:
-            print(chr(i))
                         
         return array 
+    #--------------------------------------------
+    
+    #Tópico 8---------------------------------------
+    def write_to_file(self, data):
+        with open("FAQ.txt", "w") as output_file:
+            for i in data:
+                output_file.write(chr(i))
     #--------------------------------------------
                 
     def decompress(self):
@@ -356,16 +360,8 @@ class GZIP:
             arrayCaracteresFinal = self.funcaoTopico7(HLIT, arvoreLiteraisComprimentos, arvoreDistancias)
             #---------------------------------
             
-            #Tópico 8--------------------------
-            #arrayCaracteresFinal = self.funcaoTopico7(HLIT, arvoreLiteraisComprimentos, arvoreDistancias)
-            #---------------------------------
-            
-            
-            #topico 8
-            #gravar o que está no array para ficheiro
-            #fazer append
-            #quando chega ao EOB, pega no array e grava no ficheiro
-            #máximo 32768
+            #Tópico 8---------------------------------------
+            self.write_to_file(arrayCaracteresFinal)
             
             # update number of blocks read
             numBlocks += 1
