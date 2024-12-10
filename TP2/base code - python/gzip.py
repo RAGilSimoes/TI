@@ -224,60 +224,60 @@ class GZIP:
     #--------------------------------------------
     
     #Tópico 7---------------------------------------
-    def funcaoTopico7(self, hUsado, arvoreLiterais, arvoreDistancias):
-        array = np.empty(0, dtype=object)
-        arrayLiteraisComprimentos = np.array([3,4,5,6,7,8,9,10,11,13,15,17,19,23,27,31,35,43,51,59,67,83,99,115,131,163,195,227,258], dtype=int)
-        arrayDistancias = np.array([1,2,3,4,5,7,9,13,17,25,33,49,65,97,129,193,257,385,513,769,1025,1537,2049,3073,4097,6145,8193,12289,16385,24577], dtype=int)
-        arrayReadBitsLiterais = np.array([0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,0], dtype=int)
-        arrayReadBitsDistancias = np.array([0,0,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13], dtype=int)
+    def funcaoTopico7(self, arrayFinal, arvoreLiterais, arvoreDistancias):
+        # Constantes
+        arrayLiteraisComprimentos = np.array([3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 15, 17, 19, 23, 27, 31, 35, 43, 51, 59, 67, 83, 99, 115, 131, 163, 195, 227, 258], dtype=int)
+        arrayDistancias = np.array([1, 2, 3, 4, 5, 7, 9, 13, 17, 25, 33, 49, 65, 97, 129, 193, 257, 385, 513, 769, 1025, 1537, 2049, 3073, 4097, 6145, 8193, 12289, 16385, 24577], dtype=int)
+        arrayReadBitsLiterais = np.array([0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 0], dtype=int)
+        arrayReadBitsDistancias = np.array([0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13], dtype=int)
 
-        index = 0
+        # Inicializando as variáveis
+        resultado = list(arrayFinal)
 
         while True:
             arvoreLiterais.resetCurNode()
             simboloLiterais = -2
 
-            while (simboloLiterais == -2):
-                bit = self.readBits(1) 
+            # Decodificar literal ou símbolo de comprimento
+            while simboloLiterais == -2:
+                bit = self.readBits(1)
                 simboloLiterais = arvoreLiterais.nextNode(str(bit))
-            
-            if (simboloLiterais == -1):
-                print("erro árvore de Huffman literais")
-                return -1 
 
-            if simboloLiterais <= 255:
-                array = np.append(array, simboloLiterais)
-                index += 1
-            elif simboloLiterais == 256:
+            if simboloLiterais == -1:
+                print("Erro na árvore de Huffman (literais)")
+                return -1
+
+            if simboloLiterais <= 255:  # Literal
+                resultado.append(simboloLiterais)
+            elif simboloLiterais == 256:  # Fim do bloco
                 break
-            else:
-                indiceArray = (simboloLiterais - 257)
-                tamanho = (arrayLiteraisComprimentos[indiceArray] + self.readBits(arrayReadBitsLiterais[indiceArray]))
-                
+            else:  # Símbolo de comprimento e distância
+                indiceArray = simboloLiterais - 257
+                tamanho = arrayLiteraisComprimentos[indiceArray] + self.readBits(arrayReadBitsLiterais[indiceArray])
+
                 arvoreDistancias.resetCurNode()
                 simboloDistancias = -2
-                while(simboloDistancias == -2):
+                while simboloDistancias == -2:
                     bit = self.readBits(1)
                     simboloDistancias = arvoreDistancias.nextNode(str(bit))
-                if(simboloDistancias == -1):
-                    print("erro árvore de Huffman distâncias")
+
+                if simboloDistancias == -1:
+                    print("Erro na árvore de Huffman (distâncias)")
                     return -1
-                    
-                distancia = (arrayDistancias[simboloDistancias] + self.readBits(arrayReadBitsDistancias[simboloDistancias]))
-                
+
+                distancia = arrayDistancias[simboloDistancias] + self.readBits(arrayReadBitsDistancias[simboloDistancias])
+
+                # Preenchendo o array resultado com dados de distância
                 for i in range(tamanho):
-                    array = np.append(array, array[-distancia])
-                
-                index += 1
-                        
-        return array 
+                    resultado.append(resultado[-distancia])
+
+        return np.array(resultado, dtype=int)
     #--------------------------------------------
     
     #Tópico 8---------------------------------------
-    def write_to_file(self, data):
-        with open("FAQ.txt", "w") as output_file:
-            for i in data:
-                output_file.write(chr(i))
+    def write_to_file(self, data, ficheiro):    
+        data_array = data.astype(np.uint8)
+        ficheiro.write(data_array.tobytes())
     #--------------------------------------------
                 
     def decompress(self):
@@ -300,6 +300,8 @@ class GZIP:
 
         # MAIN LOOP - decode block by block
         BFINAL = 0
+        output_file = open(self.gzh.fName, "wb")
+        arrayFinal = np.empty(0, dtype=object)
         while not BFINAL == 1:
 
             BFINAL = self.readBits(1)
@@ -356,18 +358,17 @@ class GZIP:
             print(binariosDistancias)
             #---------------------------------
             
-            #Tópico 7--------------------------
-            arrayCaracteresFinal = self.funcaoTopico7(HLIT, arvoreLiteraisComprimentos, arvoreDistancias)
+            #Tópico 7 e 8--------------------------
+            arrayFinal= self.funcaoTopico7(arrayFinal, arvoreLiteraisComprimentos, arvoreDistancias)
+            self.write_to_file(arrayFinal, output_file)
             #---------------------------------
-            
-            #Tópico 8---------------------------------------
-            self.write_to_file(arrayCaracteresFinal)
             
             # update number of blocks read
             numBlocks += 1
 
         # close file
 
+        output_file.close()
         self.f.close()
         print("End: %d block(s) analyzed." % numBlocks)
 
@@ -417,7 +418,7 @@ class GZIP:
 if __name__ == '__main__':
 
     # gets filename from command line if provided
-    fileName = "FAQ.txt.gz" #TP2/base code - python/FAQ.txt.gz
+    fileName = "sample_audio.mp3.gz" # FAQ.txt.gz sample_large_text.txt.gz sample_audio.mp3.gz sample_image.jpeg.gz
     if len(sys.argv) > 1:
         fileName = sys.argv[1]
 
