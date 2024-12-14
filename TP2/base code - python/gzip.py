@@ -124,7 +124,7 @@ class GZIP:
         
     #Tópico 1---------------------------------------
     def lerFormatoBloco(self):
-        "Le e retorna o valor correspondente"
+        #Le e retorna o valor correspondente
         HLIT = self.readBits(5) + 257
         HDIST = self.readBits(5) + 1
         HCLEN = self.readBits(4) + 4
@@ -134,6 +134,7 @@ class GZIP:
     
     #Tópico 2---------------------------------------
     def criaArrayCCCC(self, HCLEN):
+        #cria um array de comprimentos de códigos dos comprimentos de códigos
         array = np.zeros(19, dtype=object)
         ordens = np.array([16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15])
         for i in range(HCLEN):
@@ -143,6 +144,7 @@ class GZIP:
     
     #Tópico 3---------------------------------------
     def converterCompDecimal(self, array):
+        #valores únicos dos comprimentos
         Ac = np.unique(array)
         Ac= Ac[Ac>0]
         
@@ -151,7 +153,7 @@ class GZIP:
         
         mn = np.min(Ac)
         mx = np.max(Ac)
-
+        #valores decimais para cada valor do array
         for i in range(mn, mx+1):
             decimais = np.where(array == i)[0]
             for l in range(len(decimais)): 
@@ -161,6 +163,7 @@ class GZIP:
         return valoresDecimais
     
     def converterBinarios(self, decimais, array):
+        #cria os correspondentes dos decimais em binário
         binarios = np.array([None]* len(decimais), dtype=object)
         for i in range(len(decimais)):
             decimal = decimais[i]
@@ -178,6 +181,7 @@ class GZIP:
     
     #Tópico 4/5---------------------------------------
     def criaArvore(self, binarios):
+        #cria uma árvore de Huffman com as strings binárias
         hft = HuffmanTree()
         for i, code in enumerate(binarios):
             if code is not None:
@@ -186,6 +190,7 @@ class GZIP:
         return hft
     
     def funcaoTopico4e5(self, hUsado,arvore):
+        #cria os arrays resultantes da leitura da árvore de Huffman
         array = np.empty(0, dtype=object)
 
         index = 0
@@ -224,7 +229,8 @@ class GZIP:
     #--------------------------------------------
     
     #Tópico 7---------------------------------------
-    def funcaoTopico7(self, arrayFinal, arvoreLiterais, arvoreDistancias):
+    def funcaoTopico7(self, arrayFinal, arvoreLiterais, arvoreDistancias, ficheiro):
+        #introduz os dados descomprimidos no array
         # Constantes
         arrayLiteraisComprimentos = np.array([3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 15, 17, 19, 23, 27, 31, 35, 43, 51, 59, 67, 83, 99, 115, 131, 163, 195, 227, 258], dtype=int)
         arrayDistancias = np.array([1, 2, 3, 4, 5, 7, 9, 13, 17, 25, 33, 49, 65, 97, 129, 193, 257, 385, 513, 769, 1025, 1537, 2049, 3073, 4097, 6145, 8193, 12289, 16385, 24577], dtype=int)
@@ -233,6 +239,7 @@ class GZIP:
 
         # Inicializando as variáveis
         resultado = list(arrayFinal)
+        maximo = 32768
 
         while True:
             arvoreLiterais.resetCurNode()
@@ -247,13 +254,13 @@ class GZIP:
                 print("Erro na árvore de Huffman (literais)")
                 return -1
 
-            if simboloLiterais <= 255:  # Literal
+            if simboloLiterais <= 255:  # Literal  
                 resultado.append(simboloLiterais)
             elif simboloLiterais == 256:  # Fim do bloco
                 break
             else:  # Símbolo de comprimento e distância
                 indiceArray = simboloLiterais - 257
-                tamanho = arrayLiteraisComprimentos[indiceArray] + self.readBits(arrayReadBitsLiterais[indiceArray])
+                tamanho = arrayLiteraisComprimentos[indiceArray] + self.readBits(arrayReadBitsLiterais[indiceArray]) #tamanho do bloco a ser copiado
 
                 arvoreDistancias.resetCurNode()
                 simboloDistancias = -2
@@ -265,18 +272,22 @@ class GZIP:
                     print("Erro na árvore de Huffman (distâncias)")
                     return -1
 
-                distancia = arrayDistancias[simboloDistancias] + self.readBits(arrayReadBitsDistancias[simboloDistancias])
+                distancia = arrayDistancias[simboloDistancias] + self.readBits(arrayReadBitsDistancias[simboloDistancias]) #distância para recuar no array
 
-                # Preenchendo o array resultado com dados de distância
                 for i in range(tamanho):
                     resultado.append(resultado[-distancia])
-
-        return np.array(resultado, dtype=int)
+                    
+            if(len(resultado) > maximo): #escreve o que está em excesso no array e que é mais antigo de forma a preservar os 32768 elementos necessários
+                arrayEscrever = resultado[:len(resultado) - maximo]
+                resultado = resultado[len(resultado) - maximo:]
+                self.write_to_file(arrayEscrever, ficheiro)
+                    
+        return np.array(resultado, dtype=np.uint8)
     #--------------------------------------------
     
     #Tópico 8---------------------------------------
-    def write_to_file(self, data, ficheiro):    
-        data_array = data.astype(np.uint8)
+    def write_to_file(self, data, ficheiro): #passa o array recebido para o formato desejado de forma a escrever no ficheiro binário
+        data_array = np.array(data, dtype=np.uint8)
         ficheiro.write(data_array.tobytes())
     #--------------------------------------------
                 
@@ -300,8 +311,8 @@ class GZIP:
 
         # MAIN LOOP - decode block by block
         BFINAL = 0
-        output_file = open(self.gzh.fName, "wb")
         arrayFinal = np.empty(0, dtype=object)
+        ficheiro = open(self.gzh.fName, "wb")
         while not BFINAL == 1:
 
             BFINAL = self.readBits(1)
@@ -321,54 +332,44 @@ class GZIP:
             
             #Tópico 2--------------------------
             arrayCCCC = self.criaArrayCCCC(HCLEN)
-            print(arrayCCCC)
             #---------------------------------
             
             #Tópico 3--------------------------
             decimaisLiterais = self.converterCompDecimal(arrayCCCC)
             binariosLiterais=self.converterBinarios(decimaisLiterais, arrayCCCC)
-            print("\nBinarios de comprimentos de codigos:")
-            print(binariosLiterais)
             #---------------------------------
             
             #Tópico 4--------------------------
             arvoreLiterais = self.criaArvore(binariosLiterais)
             arrayHLIT = self.funcaoTopico4e5(HLIT, arvoreLiterais)
-            print("\nArray de comprimentos literais:")
-            print(arrayHLIT)
             #---------------------------------
             
             #Tópico 5---------------------------
             arrayHDIST = self.funcaoTopico4e5(HDIST, arvoreLiterais)
-            print("\nArray de comprimentos distâncias:")
-            print(arrayHDIST)
             #--------------------------------- 
 
             #Tópico 6--------------------------
             decimaisLiteraisComprimentos = self.converterCompDecimal(arrayHLIT)
             binariosLiteraisComprimentos=self.converterBinarios(decimaisLiteraisComprimentos, arrayHLIT)
             arvoreLiteraisComprimentos = self.criaArvore(binariosLiteraisComprimentos)
-            print("\nBinarios de comprimentos literais:")
-            print(binariosLiteraisComprimentos)
             #....................................
             decimaisDistancias = self.converterCompDecimal(arrayHDIST)
             binariosDistancias=self.converterBinarios(decimaisDistancias, arrayHDIST)
             arvoreDistancias = self.criaArvore(binariosDistancias)
-            print("\nBinarios de distancias:")
-            print(binariosDistancias)
             #---------------------------------
             
             #Tópico 7 e 8--------------------------
-            arrayFinal= self.funcaoTopico7(arrayFinal, arvoreLiteraisComprimentos, arvoreDistancias)
-            self.write_to_file(arrayFinal, output_file)
+            arrayFinal = self.funcaoTopico7(arrayFinal, arvoreLiteraisComprimentos, arvoreDistancias, ficheiro)
             #---------------------------------
             
             # update number of blocks read
             numBlocks += 1
+            
+        #escreve o resto do array no ficheiro
+        self.write_to_file(arrayFinal, ficheiro)
 
         # close file
 
-        output_file.close()
         self.f.close()
         print("End: %d block(s) analyzed." % numBlocks)
 
